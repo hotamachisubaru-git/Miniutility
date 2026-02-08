@@ -3,7 +3,6 @@ package org.hotamachisubaru.miniutility;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.hotamachisubaru.miniutility.Command.CommandManager;
@@ -86,7 +85,7 @@ public class Miniutility {
         pm.registerEvents(creeperProtectionListener, plugin);
         pm.registerEvents(new DeathListener(this), plugin);
         pm.registerEvents(new Menu(plugin), plugin);
-        pm.registerEvents(new NicknameListener(plugin, nicknameManager), plugin);
+        pm.registerEvents(new NicknameListener(), plugin);
         pm.registerEvents(new TrashListener(plugin), plugin);
         pm.registerEvents(new ChatPaperListener(), plugin);
     }
@@ -106,7 +105,7 @@ public class Miniutility {
                         .uri(URI.create(apiUrl))
                         .timeout(Duration.ofMillis(HTTP_TIMEOUT_MS))
                         .header("Accept", "application/vnd.github.v3+json")
-                        .header("User-Agent", "Miniutility/" + plugin.getDescription().getVersion())
+                        .header("User-Agent", "Miniutility/" + plugin.getPluginMeta().getVersion())
                         .GET()
                         .build();
 
@@ -126,10 +125,10 @@ public class Miniutility {
             try {
 
 
-                JsonObject json = new JsonParser().parse(resp.getBody()).getAsJsonObject();
+                JsonObject json = JsonParser.parseString(resp.getBody()).getAsJsonObject();
                 String latestTag = json.get("tag_name").getAsString().replaceFirst("^v", "");
                 String url = json.get("html_url").getAsString();
-                String currentVersion = plugin.getDescription().getVersion();
+                String currentVersion = plugin.getPluginMeta().getVersion();
 
                 if (!currentVersion.equals(latestTag) && !latestTag.equals(lastNotifiedVersion)) {
                     String msg = "新しいバージョン " + latestTag + " が利用可能です！ ダウンロード: " + url;
@@ -177,50 +176,12 @@ public class Miniutility {
         }
     }
 
-    private void migration() {
-        File flag = new File(plugin.getDataFolder(), "migrationCompleted.flag");
-        if (flag.exists()) return;
-
-        File oldFile = new File(plugin.getDataFolder(), "nickname.yml");
-        if (!oldFile.exists()) return;
-
-        try {
-            YamlConfiguration oldConfig = YamlConfiguration.loadConfiguration(oldFile);
-            NicknameDatabase db = new NicknameDatabase();
-            for (String key : oldConfig.getKeys(false)) {
-                String name = oldConfig.getString(key);
-                if (name != null) db.setNickname(key, name);
-            }
-            oldFile.renameTo(new File(plugin.getDataFolder(), "nickname.yml.bak"));
-            flag.createNewFile();
-        } catch (Exception e) {
-            logger.warning("マイグレーションに失敗しました: " + e.getMessage());
-        }
-    }
-
     private void setupDatabase() {
-        // data フォルダを必ず作成
         File dataDir = plugin.getDataFolder();
-        if (!dataDir.exists()) dataDir.mkdirs();
-
-        File dbFile = new File(dataDir, "nickname.db");
-        String dbUrl = "jdbc:sqlite:" + dbFile.getAbsolutePath();
-
-        try (java.sql.Connection con = java.sql.DriverManager.getConnection(dbUrl);
-             java.sql.Statement st = con.createStatement()) {
-
-            // 既存でも毎回実行してOK
-            st.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS nickname (" +
-                            "uuid TEXT PRIMARY KEY," +
-                            "name TEXT NOT NULL," +           // ニックネーム
-                            "color TEXT," +                   // カラー(任意)
-                            "show_prefix INTEGER DEFAULT 1" + // Prefix表示フラグ(任意)
-                            ")"
-            );
-        } catch (Exception e) {
-            logger.severe("nickname.db 初期セットアップに失敗しました: " + e.getMessage());
+        if (!dataDir.exists() && !dataDir.mkdirs()) {
+            logger.warning("データフォルダの作成に失敗しました: " + dataDir.getAbsolutePath());
         }
+        NicknameDatabase.init();
     }
 
     private void scheduleDailyUpdateCheck() {

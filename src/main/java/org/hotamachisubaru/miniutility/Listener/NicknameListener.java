@@ -1,7 +1,8 @@
 package org.hotamachisubaru.miniutility.Listener;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -14,17 +15,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiHolder;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiType;
-import org.hotamachisubaru.miniutility.MiniutilityLoader;
 import org.hotamachisubaru.miniutility.Nickname.NicknameDatabase;
 import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
 
-public class NicknameListener implements Listener {
-    private final NicknameManager nicknameManager;
-    private final MiniutilityLoader plugin;
+import java.util.List;
 
-    public NicknameListener(MiniutilityLoader plugin, NicknameManager nicknameManager) {
-        this.plugin = plugin;
-        this.nicknameManager = nicknameManager;
+public class NicknameListener implements Listener {
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacySection();
+
+    public NicknameListener() {
+    }
+
+    private static Component colored(String message, NamedTextColor color) {
+        return Component.text(message, color);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -43,44 +46,27 @@ public class NicknameListener implements Listener {
         if (item == null || item.getType() == Material.AIR) return;
 
         if (item.getType() == Material.PAPER) {
-            TextComponent component = new TextComponent();
-            component.setText("新しいニックネームをチャットに入力してください。");
-            component.setColor(ChatColor.AQUA);
-
-            player.sendMessage(component);
+            player.sendMessage(colored("新しいニックネームをチャットに入力してください。", NamedTextColor.AQUA));
             Chat.setWaitingForNickname(player, true);
             player.closeInventory();
         } else if (item.getType() == Material.NAME_TAG) {
-            TextComponent component = new TextComponent();
-            component.setText("色付きのニックネームをチャットで入力してください。例: &6ほたまち");
-            component.setColor(ChatColor.AQUA);
-
-            player.sendMessage(component);
+            player.sendMessage(colored("色付きのニックネームをチャットで入力してください。例: &6ほたまち", NamedTextColor.AQUA));
             Chat.setWaitingForColorInput(player, true);
             player.closeInventory();
         } else if (item.getType() == Material.BARRIER) {
             NicknameDatabase.deleteNickname(player);
             NicknameManager.updateDisplayName(player);
-
-            TextComponent component = new TextComponent();
-            component.setText("ニックネームをリセットしました。");
-            component.setColor(ChatColor.GREEN);
-
-            player.sendMessage(component);
+            player.sendMessage(colored("ニックネームをリセットしました。", NamedTextColor.GREEN));
             player.closeInventory();
         } else {
-            TextComponent component = new TextComponent();
-            component.setText("無効な選択です。");
-            component.setColor(ChatColor.RED);
-
-            player.sendMessage(component);
+            player.sendMessage(colored("無効な選択です。", NamedTextColor.RED));
         }
     }
 
 
     public static void openNicknameMenu(Player player) {
         GuiHolder holder = new GuiHolder(GuiType.NICKNAME, player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(holder, 9, "ニックネームを変更");
+        Inventory inv = Bukkit.createInventory(holder, 9, Component.text("ニックネームを変更"));
         holder.bind(inv);
 
         inv.setItem(2, createMenuItem(Material.PAPER, "§eニックネームを入力", "§7クリックして新しいニックネームを入力"));
@@ -94,10 +80,8 @@ public class NicknameListener implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(name);
-            java.util.List<String> loreList = new java.util.ArrayList<>();
-            loreList.add(lore);
-            meta.setLore(loreList);
+            meta.displayName(LEGACY_SERIALIZER.deserialize(name));
+            meta.lore(List.of(LEGACY_SERIALIZER.deserialize(lore)));
             item.setItemMeta(meta);
         }
         return item;

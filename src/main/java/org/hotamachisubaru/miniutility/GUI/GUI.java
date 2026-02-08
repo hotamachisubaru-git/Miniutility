@@ -1,5 +1,7 @@
 package org.hotamachisubaru.miniutility.GUI;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -9,14 +11,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiHolder;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiType;
 
-import java.util.Collections;
+import java.util.List;
 
 public class GUI {
 
     // ユーティリティメニューを開く（Holder判定・文字列タイトルで統一）
     public static void openMenu(Player player) {
         GuiHolder holder = new GuiHolder(GuiType.MENU, player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(holder, 27, "メニュー"); // ★ holder を必ず使う
+        Inventory inv = Bukkit.createInventory(holder, 27, Component.text("メニュー"));
         holder.bind(inv);
 
         inv.setItem(0,  createMenuItem(Material.ARMOR_STAND,   "死亡地点にワープ",   "死亡地点にワープします。溺れたり、溶岩遊泳した場合は安全な場所にテレポートします。"));
@@ -34,8 +36,8 @@ public class GUI {
 
     // ニックネーム変更メニュー
     public static void NicknameMenu(Player player) {
-        GuiHolder holder = new GuiHolder(GuiType.NICKNAME,player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(holder,9,"ニックネームを変更");
+        GuiHolder holder = new GuiHolder(GuiType.NICKNAME, player.getUniqueId());
+        Inventory inv = Bukkit.createInventory(holder, 9, Component.text("ニックネームを変更"));
         holder.bind(inv);
 
         inv.setItem(2, createMenuItem(
@@ -72,8 +74,8 @@ public class GUI {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName(("&e" + name).replace('&', '§'));
-            meta.setLore(Collections.singletonList(("&7" + lore).replace('&', '§')));
+            meta.displayName(Component.text(name, NamedTextColor.YELLOW));
+            meta.lore(List.of(Component.text(lore, NamedTextColor.GRAY)));
             item.setItemMeta(meta);
         }
         return item;
@@ -85,7 +87,7 @@ public class GUI {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName(("&e" + name).replace('&', '§'));
+            meta.displayName(Component.text(name, NamedTextColor.YELLOW));
             item.setItemMeta(meta);
         }
         return item;

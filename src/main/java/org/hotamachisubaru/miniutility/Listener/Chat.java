@@ -1,14 +1,17 @@
 package org.hotamachisubaru.miniutility.Listener;
 
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
 import org.hotamachisubaru.miniutility.util.FoliaUtil;
-import org.hotamachisubaru.miniutility.util.LuckPermsUtil;
 
 import java.util.Map;
 import java.util.UUID;
@@ -18,14 +21,19 @@ import static org.bukkit.Bukkit.getPluginManager;
 
 public class Chat implements Listener {
 
-    // 待機フラグ
+    private static final PlainTextComponentSerializer PLAIN_TEXT = PlainTextComponentSerializer.plainText();
+    private static final LegacyComponentSerializer LEGACY_AMPERSAND = LegacyComponentSerializer.legacyAmpersand();
+    private static final LegacyComponentSerializer LEGACY_SECTION = LegacyComponentSerializer.legacySection();
     private static final Map<UUID, Boolean> waitingForNickname = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> waitingForColorInput = new ConcurrentHashMap<>();
     private static final Map<UUID, Boolean> waitingForExpInput = new ConcurrentHashMap<>();
 
     public static void setWaitingForNickname(Player player, boolean waiting) {
-        if (waiting) waitingForNickname.put(player.getUniqueId(), true);
-        else waitingForNickname.remove(player.getUniqueId());
+        if (waiting) {
+            waitingForNickname.put(player.getUniqueId(), true);
+        } else {
+            waitingForNickname.remove(player.getUniqueId());
+        }
     }
 
     public static boolean isWaitingForNickname(Player player) {
@@ -33,8 +41,11 @@ public class Chat implements Listener {
     }
 
     public static void setWaitingForColorInput(Player player, boolean waiting) {
-        if (waiting) waitingForColorInput.put(player.getUniqueId(), true);
-        else waitingForColorInput.remove(player.getUniqueId());
+        if (waiting) {
+            waitingForColorInput.put(player.getUniqueId(), true);
+        } else {
+            waitingForColorInput.remove(player.getUniqueId());
+        }
     }
 
     public static boolean isWaitingForColorInput(Player player) {
@@ -42,170 +53,125 @@ public class Chat implements Listener {
     }
 
     public static void setWaitingForExpInput(Player player, boolean waiting) {
-        if (waiting) waitingForExpInput.put(player.getUniqueId(), true);
-        else waitingForExpInput.remove(player.getUniqueId());
+        if (waiting) {
+            waitingForExpInput.put(player.getUniqueId(), true);
+        } else {
+            waitingForExpInput.remove(player.getUniqueId());
+        }
     }
 
     public static boolean isWaitingForExpInput(Player player) {
         return waitingForExpInput.getOrDefault(player.getUniqueId(), false);
     }
 
-    /**
-     * 旧式(AsyncPlayerChatEvent)専用のハンドラ。Paper新式がある環境では何もしない
-     */
-    @EventHandler(ignoreCancelled = true)
-    public void onLegacyAsyncChat(AsyncPlayerChatEvent e) {
-        // Paper新式がある環境では二重送信を避ける
-        if (hasPaperAsyncChat()) return;
-
-        Player player = e.getPlayer();
-        String plain = e.getMessage();
-
-        if (tryHandleWaitingInput(player, plain)) {
-            e.setCancelled(true);
-            return;
-        }
-
-        // ▼ここから通常チャットの整形
-        String prefix = "";
-        try {
-            prefix = LuckPermsUtil.safePrefix(player); // LuckPerms無しでも安全
-        } catch (Throwable ignored) {}
-
-        String nickname = NicknameManager.getDisplayName(player);
-        if (nickname == null || nickname.isEmpty()) nickname = player.getName();
-
-        // Prefix二重付与ガード
-        if (!prefix.isEmpty() && nickname.startsWith(prefix)) prefix = "";
-
-        String display = prefix.isEmpty()
-                ? nickname
-                : (prefix + ChatColor.RESET + " " + nickname);
-
-        // %1$s(名前)/%2$s(本文)。名前は固定文字列にして本文だけ使う
-        e.setFormat(display + ChatColor.RESET + " » %2$s");
+    public static String toPlainText(Component message) {
+        if (message == null) return "";
+        return PLAIN_TEXT.serialize(message);
     }
 
-
-    private static boolean hasPaperAsyncChat() {
-        try {
-            Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
-            return true;
-        } catch (ClassNotFoundException ex) {
-            return false;
-        }
+    private static Component colored(String message, NamedTextColor color) {
+        return Component.text(message, color);
     }
 
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        clearWaitingState(event.getPlayer().getUniqueId());
+    }
 
+    @EventHandler
+    public void onPlayerKick(PlayerKickEvent event) {
+        clearWaitingState(event.getPlayer().getUniqueId());
+    }
 
     /**
-     * 共通の“待機フラグ”処理。消費したら true
+     * 共通の“待機フラグ”処理。入力を消費したら true
      */
     public static boolean tryHandleWaitingInput(Player player, String plainMessage) {
+        if (player == null) return false;
 
         if (isWaitingForExpInput(player)) {
             setWaitingForExpInput(player, false);
+            final String input = plainMessage == null ? "" : plainMessage.trim();
             try {
-                int change = Integer.parseInt(plainMessage.trim());
-                int newLevel = Math.max(0, player.getLevel() + change);
-                player.setLevel(newLevel);
-
-                TextComponent component = new TextComponent();
-                component.setText("経験値レベルを " + newLevel + " に変更しました。");
-                component.setColor(ChatColor.GREEN.asBungee());
-
-                player.sendMessage(component);
+                final int change = Integer.parseInt(input);
+                runOnPlayerThread(player, () -> {
+                    int newLevel = Math.max(0, player.getLevel() + change);
+                    player.setLevel(newLevel);
+                    player.sendMessage(colored("経験値レベルを " + newLevel + " に変更しました。", NamedTextColor.GREEN));
+                });
             } catch (NumberFormatException ex) {
-                player.sendMessage(ChatColor.RED + "数値を入力してください。");
+                runOnPlayerThread(player, () ->
+                        player.sendMessage(colored("数値を入力してください。", NamedTextColor.RED))
+                );
             }
             return true;
         }
 
         if (isWaitingForNickname(player)) {
             final String input = plainMessage == null ? "" : plainMessage.trim();
-
             String validated = validateNickname(input);
             if (validated != null) {
                 setWaitingForNickname(player, false);
-                var pl = getPluginManager().getPlugin("Miniutility");
-                if (pl != null) {
-                    FoliaUtil.runAtPlayer(pl, player.getUniqueId(), () -> {
-                        NicknameManager.setNickname(player, validated);
-                        player.sendMessage(ChatColor.GREEN + "ニックネームを「" + validated + "」に設定しました。");
-                    });
-                } else {
+                runOnPlayerThread(player, () -> {
                     NicknameManager.setNickname(player, validated);
-
-                    TextComponent component = new TextComponent();
-                    component.setText("ニックネームを「" + validated + "」に設定しました。");
-                    component.setColor(ChatColor.GREEN.asBungee());
-
-                    player.sendMessage(component);
-                }
+                    player.sendMessage(colored("ニックネームを「" + validated + "」に設定しました。", NamedTextColor.GREEN));
+                });
             } else {
-                TextComponent component = new TextComponent();
-                component.setText("無効なニックネームです。1〜16文字、記号は _- のみ使用可。空白不可。");
-                component.setColor(ChatColor.RED.asBungee());
-
-                player.sendMessage(component);
+                runOnPlayerThread(player, () ->
+                        player.sendMessage(colored("無効なニックネームです。1〜16文字、記号は _- のみ使用可。空白不可。", NamedTextColor.RED))
+                );
             }
             return true;
         }
 
-        setWaitingForColorInput(player, false);
+        if (isWaitingForColorInput(player)) {
+            setWaitingForColorInput(player, false);
 
-        String raw = plainMessage == null ? "" : plainMessage.trim();
-        if (raw.isEmpty()) {
-            TextComponent component = new TextComponent();
-            component.setText("例: &6a, &bほたまち");
-            component.setColor(ChatColor.RED.asBungee());
+            final String raw = plainMessage == null ? "" : plainMessage.trim();
+            if (raw.isEmpty()) {
+                runOnPlayerThread(player, () ->
+                        player.sendMessage(colored("例: &6a, &bほたまち", NamedTextColor.RED))
+                );
+                return true;
+            }
 
-            player.sendMessage(component);
+            String visible = raw.replaceAll("(?i)[&§][0-9a-fk-or]", "");
+            if (validateNickname(visible) == null) {
+                runOnPlayerThread(player, () ->
+                        player.sendMessage(colored("無効なニックネームです。1〜16文字、記号は _- のみ、空白不可。", NamedTextColor.RED))
+                );
+                return true;
+            }
+
+            final String colored = LEGACY_SECTION.serialize(
+                    LEGACY_AMPERSAND.deserialize(raw.replace('§', '&'))
+            );
+            runOnPlayerThread(player, () -> {
+                NicknameManager.setNickname(player, colored);
+                player.sendMessage(
+                        colored("ニックネームを設定しました: ", NamedTextColor.GREEN)
+                                .append(LEGACY_SECTION.deserialize(colored))
+                );
+            });
             return true;
         }
 
-        String visible = raw.replaceAll("(?i)[&§][0-9a-fk-or]", "");
-        if (validateNickname(visible) == null) {
-            TextComponent component = new TextComponent();
-            component.setText("無効なニックネームです。1〜16文字、記号は _- のみ、空白不可。");
-            component.setColor(ChatColor.RED.asBungee());
-
-            player.sendMessage(component);
-            return true;
-        }
-
-        String colored = ChatColor.translateAlternateColorCodes('&', raw);
-
-        NicknameManager.setNickname(player, colored);
-
-        TextComponent component = new TextComponent();
-        component.setText("ニックネームを設定しました: " + colored);
-        component.setColor(ChatColor.GREEN.asBungee());
-
-        player.sendMessage(component);
-        return true;
+        return false;
     }
 
-    private static ChatColor parseChatColor(String in) {
-        if (in == null) return null;
-        String s = in.trim();
-        if (s.isEmpty()) return null;
+    private static void clearWaitingState(UUID uuid) {
+        waitingForNickname.remove(uuid);
+        waitingForColorInput.remove(uuid);
+        waitingForExpInput.remove(uuid);
+    }
 
-        if (s.length() >= 2 && (s.charAt(0) == '&' || s.charAt(0) == '§')) {
-            ChatColor by = ChatColor.getByChar(Character.toLowerCase(s.charAt(1)));
-            return (by != null && by.isColor()) ? by : null;
+    private static void runOnPlayerThread(Player player, Runnable task) {
+        Plugin plugin = getPluginManager().getPlugin("Miniutility");
+        if (plugin == null) {
+            task.run();
+            return;
         }
-
-        if (s.equalsIgnoreCase("grey")) s = "GRAY";
-        if (s.equalsIgnoreCase("pink")) s = "LIGHT_PURPLE";
-        if (s.equalsIgnoreCase("purple")) s = "DARK_PURPLE";
-
-        try {
-            ChatColor c = ChatColor.valueOf(s.toUpperCase());
-            return c.isColor() ? c : null;
-        } catch (IllegalArgumentException ignored) {
-            return null;
-        }
+        FoliaUtil.runAtPlayer(plugin, player.getUniqueId(), task);
     }
 
     private static String validateNickname(String s) {

@@ -26,7 +26,7 @@ public class NicknameMigration {
      */
     public void migrateToDatabase() {
         File yamlFile = new File(plugin.getDataFolder(), "nickname.yml");
-        String dbPath = new File(plugin.getDataFolder(), "nicknames.db").getPath();
+        String dbPath = new File(plugin.getDataFolder(), "nickname.db").getPath();
         Logger logger = plugin.getLogger();
 
         if (!yamlFile.exists()) {
@@ -45,7 +45,7 @@ public class NicknameMigration {
         try (Connection connection = DriverManager.getConnection(dbUrl)) {
             // テーブルなければ作成
             try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS nicknames (uuid TEXT PRIMARY KEY, nickname TEXT)");
+                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS nicknames (uuid TEXT PRIMARY KEY, nickname TEXT NOT NULL)");
             }
 
             String insertQuery = "REPLACE INTO nicknames (uuid, nickname) VALUES (?, ?)";

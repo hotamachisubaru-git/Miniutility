@@ -1,7 +1,7 @@
 package org.hotamachisubaru.miniutility.Command;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,6 +23,10 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    private static Component colored(String text, NamedTextColor color) {
+        return Component.text(text, color);
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         String name = command.getName().toLowerCase();
@@ -32,38 +36,22 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 if (sender instanceof Player player) {
                     GUI.openMenu(player);
                 } else {
-                    TextComponent component = new TextComponent();
-                    component.setText("プレイヤーのみ使用できます。");
-                    component.setColor(ChatColor.RED);
-                    sender.sendMessage(component);
+                    sender.sendMessage(colored("プレイヤーのみ使用できます。", NamedTextColor.RED));
                 }
                 return true;
 
             case "load":
                 try {
                     NicknameDatabase.reload();
-
-                    TextComponent component = new TextComponent();
-                    component.setText("ニックネームデータを再読み込みしました。");
-                    component.setColor(ChatColor.GREEN);
-
-                    sender.sendMessage(component);
+                    sender.sendMessage(colored("ニックネームデータを再読み込みしました。", NamedTextColor.GREEN));
                 } catch (Throwable e) {
-                    TextComponent component = new TextComponent();
-                    component.setText("データベース再読み込みに失敗しました: " + e.getMessage());
-                    component.setColor(ChatColor.RED);
-
-                    sender.sendMessage(component);
+                    sender.sendMessage(colored("データベース再読み込みに失敗しました: " + e.getMessage(), NamedTextColor.RED));
                 }
                 return true;
 
             case "prefixtoggle":
                 if (!(sender instanceof Player)) {
-                    TextComponent component = new TextComponent();
-                    component.setText("プレイヤーのみ実行可能です。");
-                    component.setColor(ChatColor.RED);
-
-                    sender.sendMessage(component);
+                    sender.sendMessage(colored("プレイヤーのみ実行可能です。", NamedTextColor.RED));
                     return true;
                 }
                 Player player = (Player) sender;
@@ -71,27 +59,15 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 try {
                     enabled = plugin.getMiniutility().getNicknameManager().togglePrefix(player.getUniqueId());
                 } catch (Throwable e) {
-                    TextComponent component = new TextComponent();
-                    component.setText("Prefixの切り替えに失敗しました: " + e.getMessage());
-                    component.setColor(ChatColor.RED);
-
-                    sender.sendMessage(component);
+                    sender.sendMessage(colored("Prefixの切り替えに失敗しました: " + e.getMessage(), NamedTextColor.RED));
                     return true;
                 }
 
-                TextComponent component = new TextComponent();
-                component.setText("Prefixの表示が " + (enabled ? "有効" : "無効") + " になりました。");
-                component.setColor(ChatColor.GREEN);
-
-                player.sendMessage(component);
+                player.sendMessage(colored("Prefixの表示が " + (enabled ? "有効" : "無効") + " になりました。", NamedTextColor.GREEN));
                 return true;
 
             default:
-                TextComponent componentp = new TextComponent();
-                componentp.setText("不明なコマンドです。");
-                componentp.setColor(ChatColor.RED);
-
-                sender.sendMessage(componentp);
+                sender.sendMessage(colored("不明なコマンドです。", NamedTextColor.RED));
                 return false;
         }
     }
