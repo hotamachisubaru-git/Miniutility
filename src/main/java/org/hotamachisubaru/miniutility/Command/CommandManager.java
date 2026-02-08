@@ -29,8 +29,8 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
         switch (name) {
             case "menu":
-                if (sender instanceof Player) {
-                    GUI.openMenu((Player) sender);
+                if (sender instanceof Player player) {
+                    GUI.openMenu(player);
                 } else {
                     TextComponent component = new TextComponent();
                     component.setText("プレイヤーのみ使用できます。");

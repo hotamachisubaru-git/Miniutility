@@ -40,7 +40,7 @@ public class DeathListener implements Listener {
         if (APIVersionUtil.isModern()) {
             try {
                 Object loc = Player.class.getMethod("getLastDeathLocation").invoke(player);
-                if (loc instanceof Location) return (Location) loc;
+                if (loc instanceof Location location) return location;
             } catch (Throwable ignore) {}
         }
         return plugin.getDeathLocation(player.getUniqueId());

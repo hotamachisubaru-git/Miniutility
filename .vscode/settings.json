@@ -1,0 +1,9 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^\\$env:JAVA_HOME='C:\\\\Users\\\\Administrator\\\\\\.jdk\\\\jdk-11\\.0\\.28\\(1\\)'; \\$env:PATH='C:\\\\Users\\\\Administrator\\\\\\.maven\\\\maven-3\\.9\\.12\\\\bin;' \\+ \\$env:PATH; mvn -DskipTests=true -Drewrite\\.activeRecipes=org\\.openrewrite\\.java\\.migrate\\.UpgradeToJava21 -f \"G:\\\\Miniutility\\\\pom\\.xml\" org\\.openrewrite\\.maven:rewrite-maven-plugin:5\\.47\\.3:run --quiet$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
+}
