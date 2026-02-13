@@ -9,7 +9,6 @@ import java.util.Objects;
 /**
  * 旧統合リスナー互換用の委譲クラス。
  */
-@Deprecated
 public final class Utilities implements Listener {
 
     private final Menu menuListener;

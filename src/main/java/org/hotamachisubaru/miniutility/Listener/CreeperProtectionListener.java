@@ -18,7 +18,13 @@ public final class CreeperProtectionListener implements Listener {
     }
 
     public boolean toggle() {
-        return enabled.updateAndGet(current -> !current);
+        while (true) {
+            boolean current = enabled.get();
+            boolean next = !current;
+            if (enabled.compareAndSet(current, next)) {
+                return next;
+            }
+        }
     }
 
     public boolean isEnabled() {
