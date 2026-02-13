@@ -1,5 +1,5 @@
-> legacy support for
-> mc 1.13.2 ~
+> native support for
+> mc 1.21.9 ~
 # こちらは、1.21.9以降のサーバーで動作します。
 # 1.21.8以前は
 「https://github.com/minamikana-git/Miniutility」
