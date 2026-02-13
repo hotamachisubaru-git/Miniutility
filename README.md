@@ -1,5 +1,9 @@
 > legacy support for
 > mc 1.13.2 ~
+# こちらは、1.21.9以降のサーバーで動作します。
+# 1.21.8以前は
+「https://github.com/minamikana-git/Miniutility」
+にあります。
 
 注意：LunaChatが導入されているサーバーでは、以下の設定が必要です。
 
