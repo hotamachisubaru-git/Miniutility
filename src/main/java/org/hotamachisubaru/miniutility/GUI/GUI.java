@@ -12,11 +12,15 @@ import org.hotamachisubaru.miniutility.GUI.holder.GuiHolder;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiType;
 
 import java.util.List;
+import java.util.Objects;
 
-public class GUI {
+public final class GUI {
 
-    // ユーティリティメニューを開く（Holder判定・文字列タイトルで統一）
+    private GUI() {
+    }
+
     public static void openMenu(Player player) {
+        Objects.requireNonNull(player, "player");
         GuiHolder holder = new GuiHolder(GuiType.MENU, player.getUniqueId());
         Inventory inv = Bukkit.createInventory(holder, 27, Component.text("メニュー"));
         holder.bind(inv);
@@ -33,9 +37,8 @@ public class GUI {
         player.openInventory(inv);
     }
 
-
-    // ニックネーム変更メニュー
-    public static void NicknameMenu(Player player) {
+    public static void openNicknameMenu(Player player) {
+        Objects.requireNonNull(player, "player");
         GuiHolder holder = new GuiHolder(GuiType.NICKNAME, player.getUniqueId());
         Inventory inv = Bukkit.createInventory(holder, 9, Component.text("ニックネームを変更"));
         holder.bind(inv);
@@ -61,15 +64,14 @@ public class GUI {
         player.openInventory(inv);
     }
 
-    /**
-     * メニューアイテムを作成するヘルパーメソッド
-     *
-     * @param material アイテムの素材
-     * @param name     アイテムの名前
-     * @param lore     アイテムの説明
-     * @return 作成されたアイテム
-     */
+    @Deprecated
+    public static void NicknameMenu(Player player) {
+        openNicknameMenu(player);
+    }
+
     public static ItemStack createMenuItem(Material material, String name, String lore) {
+        Objects.requireNonNull(material, "material");
+        Objects.requireNonNull(name, "name");
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
@@ -81,8 +83,9 @@ public class GUI {
         return item;
     }
 
-    // オーバーロード（lore無し版）も用意
     public static ItemStack createMenuItem(Material material, String name) {
+        Objects.requireNonNull(material, "material");
+        Objects.requireNonNull(name, "name");
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 

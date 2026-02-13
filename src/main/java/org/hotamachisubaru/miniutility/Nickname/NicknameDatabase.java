@@ -1,124 +1,173 @@
 package org.hotamachisubaru.miniutility.Nickname;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.hotamachisubaru.miniutility.MiniutilityLoader;
 
-import java.sql.*;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import static org.hotamachisubaru.miniutility.Nickname.NicknameManager.nicknameMap;
-
 /**
- * ニックネームデータベース管理（Paper全バージョン共通設計）
+ * ニックネーム永続化レイヤー。
  */
-public class NicknameDatabase {
-    private static final Logger logger = Bukkit.getLogger();
-    private static final String DB_URL = "jdbc:sqlite:plugins/Miniutility/nickname.db";
+public final class NicknameDatabase {
 
-    public static void init() {
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS nicknames (" +
-                    "uuid TEXT PRIMARY KEY," +
-                    "nickname TEXT NOT NULL" +
-                    ")");
+    private static final String CREATE_TABLE_SQL =
+            "CREATE TABLE IF NOT EXISTS nicknames (uuid TEXT PRIMARY KEY, nickname TEXT NOT NULL)";
+    private static final String UPSERT_SQL =
+            "INSERT OR REPLACE INTO nicknames (uuid, nickname) VALUES (?, ?)";
+
+    private final Logger logger;
+    private final File dataFolder;
+    private final String jdbcUrl;
+
+    public NicknameDatabase(MiniutilityLoader plugin) {
+        Objects.requireNonNull(plugin, "plugin");
+        this.logger = plugin.getLogger();
+        this.dataFolder = plugin.getDataFolder();
+        this.jdbcUrl = "jdbc:sqlite:" + new File(dataFolder, "nickname.db").getAbsolutePath();
+    }
+
+    public void init() {
+        ensureDataFolder();
+        try (Connection connection = openConnection();
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate(CREATE_TABLE_SQL);
         } catch (SQLException e) {
-            logger.warning("ニックネームDBの初期化に失敗: " + e.getMessage());
+            logger.warning("ニックネームDBの初期化に失敗しました: " + e.getMessage());
         }
     }
 
-    public static void saveNickname(Player player, String nickname) {
-        if (player == null || nickname == null) return;
-        persistNickname(player.getUniqueId(), nickname);
-    }
+    public void saveNickname(UUID uuid, String nickname) {
+        if (uuid == null || nickname == null) {
+            return;
+        }
 
-    private static void persistNickname(UUID uuid, String nickname) {
-        if (uuid == null || nickname == null) return;
         init();
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(
-                     "INSERT OR REPLACE INTO nicknames (uuid, nickname) VALUES (?, ?)")) {
-            ps.setString(1, uuid.toString());
-            ps.setString(2, nickname);
-            ps.executeUpdate();
-            nicknameMap.put(uuid, nickname);
+        try (Connection connection = openConnection();
+             PreparedStatement statement = connection.prepareStatement(UPSERT_SQL)) {
+            statement.setString(1, uuid.toString());
+            statement.setString(2, nickname);
+            statement.executeUpdate();
         } catch (SQLException e) {
             logger.warning("ニックネームの保存に失敗しました: " + e.getMessage());
         }
     }
 
-    public static String loadNickname(Player player) {
-        if (player == null) return null;
+    public Optional<String> loadNickname(UUID uuid) {
+        if (uuid == null) {
+            return Optional.empty();
+        }
+
         init();
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(
+        try (Connection connection = openConnection();
+             PreparedStatement statement = connection.prepareStatement(
                      "SELECT nickname FROM nicknames WHERE uuid = ?")) {
-            ps.setString(1, player.getUniqueId().toString());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("nickname");
+            statement.setString(1, uuid.toString());
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.ofNullable(resultSet.getString("nickname"));
                 }
             }
         } catch (SQLException e) {
             logger.warning("ニックネームの取得に失敗しました: " + e.getMessage());
         }
-        return null;
+
+        return Optional.empty();
     }
 
-    public static void deleteNickname(Player player) {
-        if (player == null) return;
+    public Map<UUID, String> loadAllNicknames() {
         init();
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement ps = conn.prepareStatement(
+        Map<UUID, String> nicknames = new HashMap<>();
+
+        try (Connection connection = openConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT uuid, nickname FROM nicknames");
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                String rawUuid = resultSet.getString("uuid");
+                String nickname = resultSet.getString("nickname");
+                try {
+                    nicknames.put(UUID.fromString(rawUuid), nickname);
+                } catch (IllegalArgumentException ex) {
+                    logger.warning("無効なUUIDをスキップしました: " + rawUuid);
+                }
+            }
+        } catch (SQLException e) {
+            logger.warning("ニックネーム一覧の読み込みに失敗しました: " + e.getMessage());
+        }
+
+        return nicknames;
+    }
+
+    public void deleteNickname(UUID uuid) {
+        if (uuid == null) {
+            return;
+        }
+
+        init();
+        try (Connection connection = openConnection();
+             PreparedStatement statement = connection.prepareStatement(
                      "DELETE FROM nicknames WHERE uuid = ?")) {
-            ps.setString(1, player.getUniqueId().toString());
-            ps.executeUpdate();
-            nicknameMap.remove(player.getUniqueId());
+            statement.setString(1, uuid.toString());
+            statement.executeUpdate();
         } catch (SQLException e) {
             logger.warning("ニックネームの削除に失敗しました: " + e.getMessage());
         }
     }
 
-    public static void reload() {
-        init();
-        nicknameMap.clear();
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            String nickname = NicknameDatabase.loadNickname(player);
-            if (nickname != null) {
-                nicknameMap.put(player.getUniqueId(), nickname);
-            }
+    public void saveAll(Map<UUID, String> nicknames) {
+        if (nicknames == null || nicknames.isEmpty()) {
+            return;
         }
-    }
 
-    // プレイヤーUUIDのStringで登録
-    public void setNickname(String uuid, String nickname) {
-        if (uuid == null || nickname == null) return;
-        try {
-            persistNickname(UUID.fromString(uuid), nickname);
-        } catch (IllegalArgumentException ex) {
-            logger.warning("UUIDが不正なため保存に失敗しました: " + uuid);
-        }
-    }
-
-    public void saveAll() {
         init();
-        String sql = "INSERT OR REPLACE INTO nicknames (uuid, nickname) VALUES (?, ?)";
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                for (Map.Entry<UUID, String> entry : nicknameMap.entrySet()) {
-                    ps.setString(1, entry.getKey().toString());
-                    ps.setString(2, entry.getValue());
-                    ps.addBatch();
+        try (Connection connection = openConnection()) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(UPSERT_SQL)) {
+                for (Map.Entry<UUID, String> entry : nicknames.entrySet()) {
+                    if (entry.getKey() == null || entry.getValue() == null) {
+                        continue;
+                    }
+                    statement.setString(1, entry.getKey().toString());
+                    statement.setString(2, entry.getValue());
+                    statement.addBatch();
                 }
-                ps.executeBatch();
-                conn.commit();
+                statement.executeBatch();
+                connection.commit();
+            } catch (SQLException e) {
+                try {
+                    connection.rollback();
+                } catch (SQLException rollbackException) {
+                    logger.warning("ニックネーム保存失敗時のロールバックに失敗しました: " + rollbackException.getMessage());
+                }
+                throw e;
+            } finally {
+                connection.setAutoCommit(true);
             }
         } catch (SQLException e) {
             logger.warning("ニックネームの一括保存に失敗しました: " + e.getMessage());
         }
     }
 
+    private Connection openConnection() throws SQLException {
+        return DriverManager.getConnection(jdbcUrl);
+    }
+
+    private void ensureDataFolder() {
+        if (dataFolder.exists()) {
+            return;
+        }
+        if (!dataFolder.mkdirs()) {
+            logger.warning("データフォルダの作成に失敗しました: " + dataFolder.getAbsolutePath());
+        }
+    }
 }

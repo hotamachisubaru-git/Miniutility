@@ -6,15 +6,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.hotamachisubaru.miniutility.Listener.Chat;
 
+import java.util.Objects;
+
 public final class ChatBridge implements Listener {
+
+    private final Chat chatListener;
+
+    public ChatBridge(Chat chatListener) {
+        this.chatListener = Objects.requireNonNull(chatListener, "chatListener");
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onAsyncPlayerChat(AsyncChatEvent e) {
-        final Player player = e.getPlayer();
-        final String plain = Chat.toPlainText(e.message());
-
-        // 待機フラグの共通処理（消費したらキャンセル）
-        if (Chat.tryHandleWaitingInput(player, plain)) {
+        Player player = e.getPlayer();
+        if (chatListener.tryHandleWaitingInput(player, Chat.toPlainText(e.message()))) {
             e.setCancelled(true);
         }
     }

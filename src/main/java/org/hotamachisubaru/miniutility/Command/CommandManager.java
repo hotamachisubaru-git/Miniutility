@@ -2,25 +2,27 @@ package org.hotamachisubaru.miniutility.Command;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.hotamachisubaru.miniutility.GUI.GUI;
-import org.hotamachisubaru.miniutility.MiniutilityLoader;
-import org.hotamachisubaru.miniutility.Nickname.NicknameDatabase;
+import org.hotamachisubaru.miniutility.Miniutility;
+import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
-public class CommandManager implements CommandExecutor, TabCompleter {
+public final class CommandManager implements CommandExecutor, TabCompleter {
 
-    private final MiniutilityLoader plugin;
+    private final Miniutility miniutility;
 
-    public CommandManager(MiniutilityLoader plugin) {
-        this.plugin = plugin;
+    public CommandManager(Miniutility miniutility) {
+        this.miniutility = miniutility;
     }
 
     private static Component colored(String text, NamedTextColor color) {
@@ -29,7 +31,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        String name = command.getName().toLowerCase();
+        String name = command.getName().toLowerCase(Locale.ROOT);
 
         switch (name) {
             case "menu":
@@ -41,25 +43,34 @@ public class CommandManager implements CommandExecutor, TabCompleter {
                 return true;
 
             case "load":
+                if (!sender.hasPermission("load")) {
+                    sender.sendMessage(colored("このコマンドを実行する権限がありません。", NamedTextColor.RED));
+                    return true;
+                }
                 try {
-                    NicknameDatabase.reload();
+                    miniutility.getNicknameManager().reload(Bukkit.getOnlinePlayers());
                     sender.sendMessage(colored("ニックネームデータを再読み込みしました。", NamedTextColor.GREEN));
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     sender.sendMessage(colored("データベース再読み込みに失敗しました: " + e.getMessage(), NamedTextColor.RED));
                 }
                 return true;
 
             case "prefixtoggle":
-                if (!(sender instanceof Player)) {
+                if (!(sender instanceof Player player)) {
                     sender.sendMessage(colored("プレイヤーのみ実行可能です。", NamedTextColor.RED));
                     return true;
                 }
-                Player player = (Player) sender;
+
+                NicknameManager nicknameManager = miniutility.getNicknameManager();
                 boolean enabled;
-                try {
-                    enabled = plugin.getMiniutility().getNicknameManager().togglePrefix(player.getUniqueId());
-                } catch (Throwable e) {
-                    sender.sendMessage(colored("Prefixの切り替えに失敗しました: " + e.getMessage(), NamedTextColor.RED));
+                if (args.length == 0 || "toggle".equalsIgnoreCase(args[0])) {
+                    enabled = nicknameManager.togglePrefix(player.getUniqueId());
+                } else if ("on".equalsIgnoreCase(args[0])) {
+                    enabled = nicknameManager.setPrefixEnabled(player.getUniqueId(), true);
+                } else if ("off".equalsIgnoreCase(args[0])) {
+                    enabled = nicknameManager.setPrefixEnabled(player.getUniqueId(), false);
+                } else {
+                    player.sendMessage(colored("使い方: /prefixtoggle [on|off|toggle]", NamedTextColor.RED));
                     return true;
                 }
 
@@ -76,13 +87,18 @@ public class CommandManager implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if ("prefixtoggle".equalsIgnoreCase(command.getName())) {
             if (args.length == 1) {
-                List<String> options = new ArrayList<String>();
+                List<String> options = new ArrayList<>();
                 options.add("on");
                 options.add("off");
+                options.add("toggle");
                 if (args[0] != null && !args[0].isEmpty()) {
-                    String head = args[0].toLowerCase();
-                    List<String> filtered = new ArrayList<String>();
-                    for (String o : options) if (o.startsWith(head)) filtered.add(o);
+                    String head = args[0].toLowerCase(Locale.ROOT);
+                    List<String> filtered = new ArrayList<>();
+                    for (String option : options) {
+                        if (option.startsWith(head)) {
+                            filtered.add(option);
+                        }
+                    }
                     return filtered;
                 }
                 return options;

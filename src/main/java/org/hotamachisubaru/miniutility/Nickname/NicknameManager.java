@@ -1,114 +1,135 @@
 package org.hotamachisubaru.miniutility.Nickname;
 
-import net.luckperms.api.cacheddata.CachedMetaData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.hotamachisubaru.miniutility.util.LuckPermsUtil;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
- * ニックネーム管理（Paper 1.21.11 ネイティブ）
+ * ニックネームと表示名を管理するサービス。
  */
-public class NicknameManager {
+public final class NicknameManager {
 
-    private static final Logger logger = Bukkit.getLogger();
     private static final LegacyComponentSerializer LEGACY_AMPERSAND = LegacyComponentSerializer.legacyAmpersand();
     private static final LegacyComponentSerializer LEGACY_SECTION = LegacyComponentSerializer.legacySection();
+    private static final Pattern LEGACY_CODES = Pattern.compile("(?i)[&§][0-9A-FK-OR]");
 
-    /** uuid -> nickname (&/§ レガシーコード可) */
-    public static final Map<UUID, String> nicknameMap = new ConcurrentHashMap<>();
+    private final NicknameDatabase nicknameDatabase;
+    private final Logger logger;
+    private final Map<UUID, String> nicknameMap = new ConcurrentHashMap<>();
+    private final Map<UUID, Boolean> prefixEnabled = new ConcurrentHashMap<>();
 
-    /** uuid -> prefix 表示のON/OFF */
-    private static final Map<UUID, Boolean> prefixEnabled = new ConcurrentHashMap<>();
-
-    /** DB アクセス */
-    private static NicknameDatabase nicknameDatabase = new NicknameDatabase();
-
-    public NicknameManager(NicknameDatabase nicknameDatabase) {
-        NicknameManager.nicknameDatabase = nicknameDatabase;
+    public NicknameManager(NicknameDatabase nicknameDatabase, Logger logger) {
+        this.nicknameDatabase = Objects.requireNonNull(nicknameDatabase, "nicknameDatabase");
+        this.logger = Objects.requireNonNull(logger, "logger");
     }
 
-    public static void init() {
-        NicknameDatabase.init();
-        NicknameDatabase.reload();
+    public void reload(Collection<? extends Player> onlinePlayers) {
+        nicknameMap.clear();
+        nicknameMap.putAll(nicknameDatabase.loadAllNicknames());
+        for (Player player : onlinePlayers) {
+            updateDisplayName(player);
+        }
     }
 
-    public static void setNickname(Player player, String nickname) {
-        if (player == null || nickname == null) return;
-        nicknameDatabase.setNickname(player.getUniqueId().toString(), nickname);
-        nicknameMap.put(player.getUniqueId(), nickname);
+    public void setNickname(Player player, String nickname) {
+        if (player == null || nickname == null) {
+            return;
+        }
+
+        UUID uuid = player.getUniqueId();
+        nicknameMap.put(uuid, nickname);
+        nicknameDatabase.saveNickname(uuid, nickname);
         updateDisplayName(player);
     }
 
-    public static void removeNickname(Player player) {
-        if (player == null) return;
+    public void removeNickname(Player player) {
+        if (player == null) {
+            return;
+        }
+
         nicknameMap.remove(player.getUniqueId());
-        NicknameDatabase.deleteNickname(player);
+        nicknameDatabase.deleteNickname(player.getUniqueId());
         updateDisplayName(player);
     }
 
-    public static String getDisplayName(Player player) {
-        if (player == null) return "";
+    public String getDisplayName(Player player) {
+        if (player == null) {
+            return "";
+        }
         String nickname = nicknameMap.get(player.getUniqueId());
-        return (nickname != null) ? nickname : player.getName();
+        return nickname != null ? nickname : player.getName();
     }
 
-    /**
-     * Prefix の表示をトグル。戻り値は新しい状態（true=表示）
-     */
     public boolean togglePrefix(UUID uniqueId) {
-        boolean newState = !prefixEnabled.getOrDefault(uniqueId, true);
-        prefixEnabled.put(uniqueId, newState);
+        return setPrefixEnabled(uniqueId, !prefixEnabled.getOrDefault(uniqueId, true));
+    }
 
-        Player player = Bukkit.getPlayer(uniqueId);
+    public boolean setPrefixEnabled(UUID uniqueId, boolean enabled) {
+        prefixEnabled.put(uniqueId, enabled);
+        Player player = org.bukkit.Bukkit.getPlayer(uniqueId);
         if (player != null) {
             updateDisplayName(player);
         }
-        return newState;
+        return enabled;
     }
 
-    /**
-     * 先頭の色/装飾コードを外して、新しい色で付け直し
-     */
-    public static boolean setColor(Player player, NamedTextColor color) {
-        if (player == null || color == null) return false;
+    public boolean setColor(Player player, NamedTextColor color) {
+        if (player == null || color == null) {
+            return false;
+        }
+
         UUID uuid = player.getUniqueId();
         String nick = nicknameMap.get(uuid);
-        if (nick == null || nick.isEmpty()) return false;
+        if (nick == null || nick.isEmpty()) {
+            return false;
+        }
 
         String base = stripLeadingLegacyCodes(nick);
         String recolored = LEGACY_SECTION.serialize(Component.text(base, color));
         nicknameMap.put(uuid, recolored);
-        nicknameDatabase.setNickname(uuid.toString(), recolored);
+        nicknameDatabase.saveNickname(uuid, recolored);
         updateDisplayName(player);
         return true;
     }
 
-    /**
-     * 表示名（チャット名／タブ名）を更新
-     */
-    public static void updateDisplayName(Player player) {
-        if (player == null) return;
-
-        String nickname = getDisplayName(player);
-        String prefix = "";
-        try {
-            boolean show = prefixEnabled.getOrDefault(player.getUniqueId(), true);
-            if (show) {
-                CachedMetaData meta = net.luckperms.api.LuckPermsProvider.get()
-                        .getPlayerAdapter(Player.class).getMetaData(player);
-                prefix = (meta.getPrefix() == null) ? "" : meta.getPrefix();
-            }
-        } catch (Throwable ignored) {
+    public void updateDisplayName(Player player) {
+        if (player == null) {
+            return;
         }
 
-        Component displayComponent = toLegacyComponent(prefix + nickname);
+        Component display = buildDisplayComponent(player);
+        safelySetDisplayName(player, display);
+    }
+
+    public Component buildDisplayComponent(Player player) {
+        String nickname = getDisplayName(player);
+        boolean showPrefix = prefixEnabled.getOrDefault(player.getUniqueId(), true);
+        String prefix = showPrefix ? LuckPermsUtil.safePrefix(player) : "";
+
+        if (!prefix.isEmpty() && nickname.startsWith(prefix)) {
+            prefix = "";
+        }
+
+        String legacy = prefix.isEmpty() ? nickname : (prefix + "&r " + nickname);
+        return toLegacyComponent(legacy);
+    }
+
+    public Map<UUID, String> snapshotNicknames() {
+        return new HashMap<>(nicknameMap);
+    }
+
+    private void safelySetDisplayName(Player player, Component displayComponent) {
         try {
             player.displayName(displayComponent);
             player.playerListName(displayComponent);
@@ -118,7 +139,10 @@ public class NicknameManager {
     }
 
     private static String stripLeadingLegacyCodes(String s) {
-        if (s == null) return null;
+        if (s == null) {
+            return "";
+        }
+
         int i = 0;
         while (i + 1 < s.length()) {
             char c0 = s.charAt(i);
@@ -137,8 +161,17 @@ public class NicknameManager {
         return s.substring(i);
     }
 
+    public static String stripLegacyCodes(String text) {
+        if (text == null || text.isBlank()) {
+            return "";
+        }
+        return LEGACY_CODES.matcher(text).replaceAll("");
+    }
+
     private static Component toLegacyComponent(String legacyText) {
-        if (legacyText == null || legacyText.isEmpty()) return Component.empty();
+        if (legacyText == null || legacyText.isEmpty()) {
+            return Component.empty();
+        }
         return LEGACY_AMPERSAND.deserialize(legacyText.replace('§', '&'));
     }
 }

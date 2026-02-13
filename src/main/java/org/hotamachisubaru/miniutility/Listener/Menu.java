@@ -13,20 +13,27 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
+import org.hotamachisubaru.miniutility.GUI.GUI;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiHolder;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiType;
+import org.hotamachisubaru.miniutility.Miniutility;
 import org.hotamachisubaru.miniutility.MiniutilityLoader;
 import org.hotamachisubaru.miniutility.util.FoliaUtil;
 
-import java.lang.reflect.Method;
+import java.util.Objects;
 
-
-public class Menu implements Listener {
+public final class Menu implements Listener {
 
     private final MiniutilityLoader plugin;
+    private final Miniutility miniutility;
+    private final Chat chatListener;
+    private final TrashListener trashListener;
 
-    public Menu(MiniutilityLoader plugin) {
-        this.plugin = plugin;
+    public Menu(MiniutilityLoader plugin, Miniutility miniutility, Chat chatListener, TrashListener trashListener) {
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        this.miniutility = Objects.requireNonNull(miniutility, "miniutility");
+        this.chatListener = Objects.requireNonNull(chatListener, "chatListener");
+        this.trashListener = Objects.requireNonNull(trashListener, "trashListener");
     }
 
     private static Component colored(String message, NamedTextColor color) {
@@ -35,28 +42,37 @@ public class Menu implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void handleInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) return;
-        if (event.getClickedInventory() == null) return;
+        if (!(event.getWhoClicked() instanceof Player player)) {
+            return;
+        }
+        if (event.getClickedInventory() == null) {
+            return;
+        }
 
-        Inventory clicked = event.getClickedInventory();
-        InventoryHolder holder = clicked.getHolder();
-        if (!(holder instanceof GuiHolder)) return;
-        if (((GuiHolder) holder).getType() != GuiType.MENU) return;
+        Inventory top = event.getView().getTopInventory();
+        if (event.getClickedInventory() != top) {
+            return;
+        }
+
+        InventoryHolder holder = top.getHolder();
+        if (!(holder instanceof GuiHolder guiHolder)) {
+            return;
+        }
+        if (guiHolder.getType() != GuiType.MENU) {
+            return;
+        }
 
         event.setCancelled(true);
         ItemStack clickedItem = event.getCurrentItem();
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+            return;
+        }
 
-        handleUtilityBox((Player) event.getWhoClicked(), clickedItem, event);
+        handleUtilityBox(player, clickedItem);
     }
 
-
-    // メニューGUIのクリック処理
-    private void handleUtilityBox(Player player, ItemStack clickedItem, InventoryClickEvent event) {
-        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
-
-        Material type = clickedItem.getType();
-        switch (type) {
+    private void handleUtilityBox(Player player, ItemStack clickedItem) {
+        switch (clickedItem.getType()) {
             case ARMOR_STAND:
                 teleportToDeathLocation(player);
                 break;
@@ -70,27 +86,26 @@ public class Menu implements Listener {
                 }
                 break;
             case DROPPER:
-                TrashListener.openTrashBox(player);
+                trashListener.openTrashBox(player);
                 break;
             case NAME_TAG:
-                NicknameListener.openNicknameMenu(player);
+                GUI.openNicknameMenu(player);
                 break;
-            case CREEPER_HEAD: {
-                CreeperProtectionListener cp = plugin.getMiniutility().getCreeperProtectionListener();
-                boolean nowEnabled = cp.toggle();
-                player.sendMessage(colored("クリーパーの爆破によるブロック破壊防止が " + (nowEnabled ? "有効" : "無効") + " になりました。", NamedTextColor.GREEN));
+            case CREEPER_HEAD:
+                boolean nowEnabled = miniutility.getCreeperProtectionListener().toggle();
+                player.sendMessage(colored(
+                        "クリーパーの爆破によるブロック破壊防止が " + (nowEnabled ? "有効" : "無効") + " になりました。",
+                        NamedTextColor.GREEN
+                ));
                 player.closeInventory();
                 break;
-            }
-
-            case EXPERIENCE_BOTTLE: {
+            case EXPERIENCE_BOTTLE:
                 player.closeInventory();
-                Chat.setWaitingForExpInput(player, true);
+                chatListener.beginExpInput(player);
                 player.sendMessage(colored("経験値を増減する数値をチャットに入力してください。", NamedTextColor.AQUA));
                 player.sendMessage(colored("例: \"10\" で +10レベル, \"-5\" で -5レベル", NamedTextColor.GRAY));
                 break;
-            }
-            case COMPASS: {
+            case COMPASS:
                 GameMode current = player.getGameMode();
                 if (current == GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.CREATIVE);
@@ -101,43 +116,23 @@ public class Menu implements Listener {
                 }
                 player.closeInventory();
                 break;
-            }
             default:
                 player.sendMessage(colored("このアイテムにはアクションが設定されていません。", NamedTextColor.RED));
                 break;
         }
     }
 
-    // 死亡地点ワープ（API差分両対応）
-    // 互換テレポート本体（クラス外側に置く：メンバ or static）
-    private static void teleportCompat(Player p, Location loc) {
-        try {
-            // Paper 1.20.1+ only
-            Method m = p.getClass().getMethod("teleportAsync", Location.class);
-            m.invoke(p, loc); // CompletableFuture だが待たずにOK
-        } catch (Throwable ignore) {
-            // 旧APIへフォールバック
-            p.teleport(loc);
-        }
-    }
-
-    // 死亡地点ワープ（API差分両対応）
     private void teleportToDeathLocation(Player player) {
-        if (plugin.getMiniutility() == null) {
-            player.sendMessage(colored("プラグイン初期化中です。", NamedTextColor.RED));
-            return;
-        }
-        Location loc = plugin.getMiniutility().getDeathLocation(player.getUniqueId());
-        if (loc == null) {
+        Location location = DeathListener.getLastDeathLocation(player, miniutility);
+        if (location == null) {
             player.sendMessage(colored("死亡地点が見つかりません。", NamedTextColor.RED));
             return;
         }
 
-        // Folia/Paper 両対応でプレイヤー領域スレッドで実行（非Foliaなら通常スレッド）
         FoliaUtil.runAtPlayer(
                 plugin, player.getUniqueId(),
                 () -> {
-                    teleportCompat(player, loc);
+                    DeathListener.teleportToDeathLocation(player, location);
                     player.sendMessage(colored("死亡地点にワープしました。", NamedTextColor.GREEN));
                 }
         );

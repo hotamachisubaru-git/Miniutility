@@ -5,26 +5,23 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public final class CreeperProtectionListener implements Listener {
-    private boolean enabled = true;
+    private final AtomicBoolean enabled = new AtomicBoolean(true);
 
     @EventHandler
     public void onCreeperExplode(EntityExplodeEvent event) {
-        if (enabled && event.getEntity() instanceof Creeper) {
+        if (enabled.get() && event.getEntity() instanceof Creeper) {
             event.setCancelled(true);
         }
     }
 
-    /** トグルして新状態(true=有効/false=無効)を返す */
     public boolean toggle() {
-        enabled = !enabled;
-        return enabled;
+        return enabled.updateAndGet(current -> !current);
     }
-
-    public boolean toggleCreeperProtection() { enabled = !enabled; return enabled; }
 
     public boolean isEnabled() {
-        return enabled;
+        return enabled.get();
     }
-    public boolean isCreeperProtectionEnabled() { return enabled; }
 }

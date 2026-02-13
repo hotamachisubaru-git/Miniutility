@@ -6,43 +6,50 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.hotamachisubaru.miniutility.Miniutility;
-import org.hotamachisubaru.miniutility.util.APIVersionUtil;
 
-public class DeathListener implements Listener {
+import java.util.Objects;
 
-    private final Miniutility plugin;
+public final class DeathListener implements Listener {
 
-    public DeathListener(Miniutility plugin) {
-        this.plugin = plugin;
+    private final Miniutility miniutility;
+
+    public DeathListener(Miniutility miniutility) {
+        this.miniutility = Objects.requireNonNull(miniutility, "miniutility");
     }
 
     @EventHandler
     public void saveDeathLocation(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        Location deathLoc = player.getLocation().getBlock().getLocation().add(0, 1, 0);
-        plugin.setDeathLocation(player.getUniqueId(), deathLoc);
-        // チェスト設置処理などは現状通り
+        Location deathLocation = player.getLocation().getBlock().getLocation().add(0, 1, 0);
+        miniutility.setDeathLocation(player.getUniqueId(), deathLocation);
     }
 
-    // ワープ両対応
     public static void teleportToDeathLocation(Player player, Location location) {
-        if (APIVersionUtil.isModern()) {
-            try {
-                Player.class.getMethod("teleportAsync", Location.class).invoke(player, location);
-            } catch (Throwable e) {
-                player.teleport(location);
-            }
-        } else {
+        if (player == null || location == null) {
+            return;
+        }
+
+        try {
+            player.teleportAsync(location);
+        } catch (Throwable ignore) {
             player.teleport(location);
         }
     }
+
     public static Location getLastDeathLocation(Player player, Miniutility plugin) {
-        if (APIVersionUtil.isModern()) {
-            try {
-                Object loc = Player.class.getMethod("getLastDeathLocation").invoke(player);
-                if (loc instanceof Location location) return location;
-            } catch (Throwable ignore) {}
+        if (player == null || plugin == null) {
+            return null;
         }
+
+        try {
+            Location apiLocation = player.getLastDeathLocation();
+            if (apiLocation != null) {
+                return apiLocation.clone();
+            }
+        } catch (Throwable ignore) {
+            // 非対応API時はフォールバックへ
+        }
+
         return plugin.getDeathLocation(player.getUniqueId());
     }
 }

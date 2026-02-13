@@ -3,51 +3,38 @@ package org.hotamachisubaru.miniutility.Listener;
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
-import org.hotamachisubaru.miniutility.util.LuckPermsUtil;
+
+import java.util.Objects;
 
 public final class ChatPaperListener implements Listener {
 
-    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
+    private static final Component CHAT_SEPARATOR = Component.text(" » ", NamedTextColor.GRAY);
+
+    private final Chat chatListener;
+    private final NicknameManager nicknameManager;
+
+    public ChatPaperListener(Chat chatListener, NicknameManager nicknameManager) {
+        this.chatListener = Objects.requireNonNull(chatListener, "chatListener");
+        this.nicknameManager = Objects.requireNonNull(nicknameManager, "nicknameManager");
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAsyncChatEvent(AsyncChatEvent event) {
         Player player = event.getPlayer();
-        String plain = Chat.toPlainText(event.message());
-        if (Chat.tryHandleWaitingInput(player, plain)) {
+        if (chatListener.tryHandleWaitingInput(player, Chat.toPlainText(event.message()))) {
             event.setCancelled(true);
             return;
         }
 
-        String prefix = "";
-        try {
-            prefix = LuckPermsUtil.safePrefix(player);
-        } catch (Throwable ignored) {
-        }
-
-        String nickname = NicknameManager.getDisplayName(player);
-        if (nickname == null || nickname.isEmpty()) nickname = player.getName();
-        if (!prefix.isEmpty() && nickname.startsWith(prefix)) prefix = "";
-
-        final Component display = toLegacyComponent(
-                prefix.isEmpty() ? nickname : (prefix + "&r " + nickname)
-        );
-
+        Component display = nicknameManager.buildDisplayComponent(player);
         event.renderer(ChatRenderer.viewerUnaware((source, sourceDisplayName, message) ->
-                Component.empty()
-                        .append(display)
-                        .append(Component.text(" » "))
-                        .append(message)
+                display.append(CHAT_SEPARATOR).append(message)
         ));
-    }
-
-    private static Component toLegacyComponent(String legacyText) {
-        if (legacyText == null || legacyText.isEmpty()) return Component.empty();
-        return LEGACY_SERIALIZER.deserialize(legacyText.replace('§', '&'));
     }
 }
