@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MenuType;
 import org.hotamachisubaru.miniutility.GUI.GUI;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiHolder;
 import org.hotamachisubaru.miniutility.GUI.holder.GuiType;
@@ -80,10 +79,7 @@ public final class Menu implements Listener {
                 player.openInventory(player.getEnderChest());
                 break;
             case CRAFTING_TABLE:
-                var view = MenuType.CRAFTING.create(player, Component.text("作業台"));
-                if (view != null) {
-                    player.openInventory(view);
-                }
+                player.openWorkbench(null, true);
                 break;
             case DROPPER:
                 trashListener.openTrashBox(player);

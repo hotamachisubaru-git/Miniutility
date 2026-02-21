@@ -125,6 +125,10 @@ public final class NicknameManager {
         return toLegacyComponent(legacy);
     }
 
+    public String buildDisplayLegacy(Player player) {
+        return LEGACY_SECTION.serialize(buildDisplayComponent(player));
+    }
+
     public Map<UUID, String> snapshotNicknames() {
         return new HashMap<>(nicknameMap);
     }
@@ -133,6 +137,15 @@ public final class NicknameManager {
         try {
             player.displayName(displayComponent);
             player.playerListName(displayComponent);
+            return;
+        } catch (Throwable ignored) {
+            // fallback below
+        }
+
+        try {
+            String legacy = LEGACY_SECTION.serialize(displayComponent);
+            player.setDisplayName(legacy);
+            player.setPlayerListName(legacy);
         } catch (Throwable t) {
             logger.warning("表示名更新に失敗しました: " + t.getMessage());
         }

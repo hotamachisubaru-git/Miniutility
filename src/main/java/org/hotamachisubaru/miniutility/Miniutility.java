@@ -173,7 +173,7 @@ public final class Miniutility {
                     .uri(URI.create(apiUrl))
                     .timeout(Duration.ofMillis(HTTP_TIMEOUT_MS))
                     .header("Accept", "application/vnd.github.v3+json")
-                    .header("User-Agent", "Miniutility/" + plugin.getPluginMeta().getVersion())
+                    .header("User-Agent", "Miniutility/" + getPluginVersion())
                     .GET()
                     .build();
 
@@ -197,7 +197,7 @@ public final class Miniutility {
             JsonObject json = JsonParser.parseString(response.body).getAsJsonObject();
             String latestTag = normalizeVersion(readString(json, "tag_name"));
             String releaseUrl = readString(json, "html_url");
-            String currentVersion = normalizeVersion(plugin.getPluginMeta().getVersion());
+            String currentVersion = normalizeVersion(getPluginVersion());
 
             if (latestTag.isBlank() || latestTag.equals(currentVersion) || latestTag.equals(lastNotifiedVersion)) {
                 return;
@@ -230,6 +230,14 @@ public final class Miniutility {
             return "";
         }
         return version.replaceFirst("^v", "").trim();
+    }
+
+    private String getPluginVersion() {
+        try {
+            return plugin.getDescription().getVersion();
+        } catch (Throwable ignored) {
+            return "";
+        }
     }
 
     public void setDeathLocation(UUID uuid, Location location) {

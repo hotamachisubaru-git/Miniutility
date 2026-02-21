@@ -1,20 +1,17 @@
 package org.hotamachisubaru.miniutility.Listener;
 
-import io.papermc.paper.chat.ChatRenderer;
-import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
 
 import java.util.Objects;
 
 public final class ChatPaperListener implements Listener {
 
-    private static final Component CHAT_SEPARATOR = Component.text(" » ", NamedTextColor.GRAY);
+    private static final String CHAT_SEPARATOR = " \u00A77\u00BB ";
 
     private final Chat chatListener;
     private final NicknameManager nicknameManager;
@@ -25,16 +22,23 @@ public final class ChatPaperListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onAsyncChatEvent(AsyncChatEvent event) {
+    public void onAsyncChatEvent(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (chatListener.tryHandleWaitingInput(player, Chat.toPlainText(event.message()))) {
+        if (chatListener.tryHandleWaitingInput(player, event.getMessage())) {
             event.setCancelled(true);
             return;
         }
 
-        Component display = nicknameManager.buildDisplayComponent(player);
-        event.renderer(ChatRenderer.viewerUnaware((source, sourceDisplayName, message) ->
-                display.append(CHAT_SEPARATOR).append(message)
-        ));
+        String display = nicknameManager.buildDisplayLegacy(player);
+        if (display == null || display.isBlank()) {
+            display = player.getName();
+        }
+
+        // AsyncPlayerChatEvent#setFormat uses Formatter syntax. Escape '%' to avoid format errors.
+        event.setFormat(escapeForFormat(display) + CHAT_SEPARATOR + "%2$s");
+    }
+
+    private static String escapeForFormat(String value) {
+        return value.replace("%", "%%");
     }
 }

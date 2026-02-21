@@ -1,9 +1,9 @@
 package org.hotamachisubaru.miniutility.Bridge;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.hotamachisubaru.miniutility.Listener.Chat;
 
 import java.util.Objects;
@@ -17,9 +17,9 @@ public final class ChatBridge implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onAsyncPlayerChat(AsyncChatEvent e) {
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
-        if (chatListener.tryHandleWaitingInput(player, Chat.toPlainText(e.message()))) {
+        if (chatListener.tryHandleWaitingInput(player, e.getMessage())) {
             e.setCancelled(true);
         }
     }

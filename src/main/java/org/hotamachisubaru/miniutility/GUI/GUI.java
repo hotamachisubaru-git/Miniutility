@@ -1,7 +1,6 @@
 package org.hotamachisubaru.miniutility.GUI;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -22,7 +21,7 @@ public final class GUI {
     public static void openMenu(Player player) {
         Objects.requireNonNull(player, "player");
         GuiHolder holder = new GuiHolder(GuiType.MENU, player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(holder, 27, Component.text("メニュー"));
+        Inventory inv = Bukkit.createInventory(holder, 27, "メニュー");
         holder.bind(inv);
 
         inv.setItem(0,  createMenuItem(Material.ARMOR_STAND,   "死亡地点にワープ",   "死亡地点にワープします。溺れたり、溶岩遊泳した場合は安全な場所にテレポートします。"));
@@ -40,7 +39,7 @@ public final class GUI {
     public static void openNicknameMenu(Player player) {
         Objects.requireNonNull(player, "player");
         GuiHolder holder = new GuiHolder(GuiType.NICKNAME, player.getUniqueId());
-        Inventory inv = Bukkit.createInventory(holder, 9, Component.text("ニックネームを変更"));
+        Inventory inv = Bukkit.createInventory(holder, 9, "ニックネームを変更");
         holder.bind(inv);
 
         inv.setItem(2, createMenuItem(
@@ -76,8 +75,8 @@ public final class GUI {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.displayName(Component.text(name, NamedTextColor.YELLOW));
-            meta.lore(List.of(Component.text(lore, NamedTextColor.GRAY)));
+            meta.setDisplayName(ChatColor.YELLOW + name);
+            meta.setLore(List.of(ChatColor.GRAY + lore));
             item.setItemMeta(meta);
         }
         return item;
@@ -90,7 +89,7 @@ public final class GUI {
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.displayName(Component.text(name, NamedTextColor.YELLOW));
+            meta.setDisplayName(ChatColor.YELLOW + name);
             item.setItemMeta(meta);
         }
         return item;
