@@ -5,6 +5,11 @@
 「https://github.com/minamikana-git/Miniutility」
 にあります。
 
+## Branch policy
+
+- Forge向け変更は `forge` ブランチにコミット・プッシュする。
+- Paper向け変更は `master`（または `main`）ブランチにコミット・プッシュする。
+
 注意：LunaChatが導入されているサーバーでは、以下の設定が必要です。
 
 ```

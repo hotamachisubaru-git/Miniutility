@@ -2,9 +2,9 @@ name: Maven CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master", "main", "forge" ]
   push:
-    branches: [ "main" ]
+    branches: [ "master", "main", "forge" ]
 
 jobs:
   build:
