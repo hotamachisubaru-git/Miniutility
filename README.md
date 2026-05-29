@@ -1,18 +1,21 @@
 > native support for
-> mc 1.21.9 ~
-# こちらは、1.21.9以降のサーバーで動作します。
-# 1.21.8以前は
-「https://github.com/minamikana-git/Miniutility」
-にあります。
+> Paper 26.1.1 alpha
+
+# こちらは Paper 26.1.1 向けのブランチです
+
+- 開発依存は `io.papermc.paper:paper-api:26.1.1.build.29-alpha` を使用します。
+- Paper 26.1.1 系からバージョン命名が `-R0.1-SNAPSHOT` ではなく `26.1.1.build.N-alpha` 形式に変わっています。
+- 取得先は従来の snapshots ではなく `https://repo.papermc.io/repository/maven-public/` です。
+- 開発とビルドには Java 25 が必要です。
 
 ## Branch policy
 
 - Forge向け変更は `forge` ブランチにコミット・プッシュする。
-- Paper向け変更は `master`（または `main`）ブランチにコミット・プッシュする。
+- Paper向け変更は `master` または `main` ブランチにコミット・プッシュする。
 
-注意：LunaChatが導入されているサーバーでは、以下の設定が必要です。
+注意: LunaChat が導入されているサーバーでは、以下の設定が必要です。
 
-```
+```yaml
 # -------------------- 通常チャット設定 --------------------
 
 # 通常チャット（非チャンネルチャット）の装飾を、LunaChatから行うかどうか。
@@ -30,35 +33,31 @@ enableNormalChatMessageFormat: true
 # %time     : 時刻
 # %msg      : 発言内容（Japanize変換された場合は、Japanize結果を含みます。）
 normalChatMessageFormat: '&f%prefix%displayname%suffix&a:&f %msg'
-#normalChatMessageFormat: '&f%displayname@%server&a:&f %msg'
 
 # 通常チャット（非チャンネルチャット）で、カラーコード（&aや&bなど）を
 # 使用可能にするかどうか。falseに設定すると、カラーコードは変換されません。
-enableNormalChatColorCode: false <- ここをfalseにしてください。デフォルトではtrueです。
+enableNormalChatColorCode: false
 
 # 通常チャット（非チャンネルチャット）をクリック可能にするかどうか。
-# クリック可能にすると、プレイヤー名をクリックしてプライベートメッセージを送ることができるようになりますが、
-# 通常チャットをキャンセルしてクリック可能な別のメッセージを流すので、他のチャット関連プラグインとの連携が
-# うまくいかなくなる可能性があります。
-# なお、この設定に関係なく、チャンネルチャットは常にクリック可能です。
 enableNormalChatClickable: false
 
 # 通常チャット（非チャンネルチャット）をコンソールにログ出力するかどうか。
-# 本項目をfalseにしても、コンソールに記録される場合があります。
 displayNormalChatOnConsole: true
 ```
 
-コマンド：
-/menu メニューを開きます <br>
-/prefixtoggle prefix結合の有効無効を切り替えます <br>
-/load　データベースからニックネームを読み込みます <br>
+## コマンド
 
-# 機能一覧<br>
-・死亡地点にワープ 死亡地点にワープします。溺れたり、溶岩遊泳した場合は<br>安全な場所にテレポートします。<br>
-・経験値制御器   経験値を制御します<br>
-・ゲームモード制御器 ゲームモードを制御します。スペクテイターにはならないです。<br>
-・クリーパーのブロック破壊を防ぐ クリーパーのブロック破壊を防ぎます。<br>ON/OFFができます。<br>
-・エンダーチェスト           どこでもエンダーチェストを開けます。<br>
-・ゴミ箱                    ゴミ箱を開きます。<br>
-・ニックネームを変更          ニックネームを変更できます。色付きもできたりする。<br>
-・どこでも作業台             作業台を開きます。<br>
+- `/menu` メニューを開きます。
+- `/prefixtoggle [on|off]` Prefix 結合の有効無効を切り替えます。
+- `/load` データベースからニックネームを再読み込みします。
+
+## 機能一覧
+
+- 死亡地点にワープ
+- 経験値制御
+- ゲームモード切り替え
+- クリーパーのブロック破壊防止
+- エンダーチェスト
+- ゴミ箱
+- ニックネーム変更
+- どこでも作業台

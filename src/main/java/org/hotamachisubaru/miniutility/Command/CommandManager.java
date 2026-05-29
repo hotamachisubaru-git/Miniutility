@@ -9,13 +9,13 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.hotamachisubaru.miniutility.GUI.GUI;
 import org.hotamachisubaru.miniutility.MiniutilityLoader;
-import org.hotamachisubaru.miniutility.Nickname.NicknameDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public class CommandManager implements CommandExecutor, TabCompleter {
+public final class CommandManager implements CommandExecutor, TabCompleter {
 
     private final MiniutilityLoader plugin;
 
@@ -34,7 +34,7 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         switch (name) {
             case "menu":
                 if (sender instanceof Player player) {
-                    GUI.openMenu(player);
+                    player.openInventory(Objects.requireNonNull(GUI.createMenu(player.getUniqueId())));
                 } else {
                     sender.sendMessage(colored("プレイヤーのみ使用できます。", NamedTextColor.RED));
                 }
@@ -42,28 +42,27 @@ public class CommandManager implements CommandExecutor, TabCompleter {
 
             case "load":
                 try {
-                    NicknameDatabase.reload();
+                    plugin.getNicknameManager().reload();
                     sender.sendMessage(colored("ニックネームデータを再読み込みしました。", NamedTextColor.GREEN));
-                } catch (Throwable e) {
-                    sender.sendMessage(colored("データベース再読み込みに失敗しました: " + e.getMessage(), NamedTextColor.RED));
+                } catch (Throwable throwable) {
+                    sender.sendMessage(colored("データベース再読み込みに失敗しました: " + throwable.getMessage(), NamedTextColor.RED));
                 }
                 return true;
 
             case "prefixtoggle":
-                if (!(sender instanceof Player)) {
+                if (!(sender instanceof Player player)) {
                     sender.sendMessage(colored("プレイヤーのみ実行可能です。", NamedTextColor.RED));
                     return true;
                 }
-                Player player = (Player) sender;
-                boolean enabled;
-                try {
-                    enabled = plugin.getMiniutility().getNicknameManager().togglePrefix(player.getUniqueId());
-                } catch (Throwable e) {
-                    sender.sendMessage(colored("Prefixの切り替えに失敗しました: " + e.getMessage(), NamedTextColor.RED));
-                    return true;
-                }
 
-                player.sendMessage(colored("Prefixの表示が " + (enabled ? "有効" : "無効") + " になりました。", NamedTextColor.GREEN));
+                try {
+                    boolean enabled = resolvePrefixState(player, args);
+                    player.sendMessage(colored("Prefixの表示が " + (enabled ? "有効" : "無効") + " になりました。", NamedTextColor.GREEN));
+                } catch (IllegalArgumentException exception) {
+                    sender.sendMessage(colored(exception.getMessage(), NamedTextColor.RED));
+                } catch (Throwable throwable) {
+                    sender.sendMessage(colored("Prefixの切り替えに失敗しました: " + throwable.getMessage(), NamedTextColor.RED));
+                }
                 return true;
 
             default:
@@ -72,21 +71,42 @@ public class CommandManager implements CommandExecutor, TabCompleter {
         }
     }
 
+    private boolean resolvePrefixState(Player player, String[] args) {
+        if (args.length == 0) {
+            return plugin.getNicknameManager().togglePrefix(player.getUniqueId());
+        }
+
+        String option = args[0].toLowerCase();
+        if ("on".equals(option)) {
+            plugin.getNicknameManager().setPrefixEnabled(player.getUniqueId(), true);
+            return true;
+        }
+        if ("off".equals(option)) {
+            plugin.getNicknameManager().setPrefixEnabled(player.getUniqueId(), false);
+            return false;
+        }
+        throw new IllegalArgumentException("使用法: /prefixtoggle [on|off]");
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if ("prefixtoggle".equalsIgnoreCase(command.getName())) {
-            if (args.length == 1) {
-                List<String> options = new ArrayList<String>();
-                options.add("on");
-                options.add("off");
-                if (args[0] != null && !args[0].isEmpty()) {
-                    String head = args[0].toLowerCase();
-                    List<String> filtered = new ArrayList<String>();
-                    for (String o : options) if (o.startsWith(head)) filtered.add(o);
-                    return filtered;
-                }
+        if ("prefixtoggle".equalsIgnoreCase(command.getName()) && args.length == 1) {
+            List<String> options = new ArrayList<>();
+            options.add("on");
+            options.add("off");
+
+            String head = args[0] == null ? "" : args[0].toLowerCase();
+            if (head.isEmpty()) {
                 return options;
             }
+
+            List<String> filtered = new ArrayList<>();
+            for (String option : options) {
+                if (option.startsWith(head)) {
+                    filtered.add(option);
+                }
+            }
+            return filtered;
         }
         return Collections.emptyList();
     }

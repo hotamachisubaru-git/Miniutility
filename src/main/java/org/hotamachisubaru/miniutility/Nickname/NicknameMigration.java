@@ -5,63 +5,63 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.hotamachisubaru.miniutility.MiniutilityLoader;
 
 import java.io.File;
-import java.sql.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Logger;
 
-/**
- * ニックネームYAML→SQLite移行用
- * データベースパスやログ取得はMiniutilityLoaderから
- */
-public class NicknameMigration {
+public final class NicknameMigration {
 
     private final MiniutilityLoader plugin;
+    private final NicknameDatabase nicknameDatabase;
 
-    public NicknameMigration(MiniutilityLoader plugin) {
+    public NicknameMigration(MiniutilityLoader plugin, NicknameDatabase nicknameDatabase) {
         this.plugin = plugin;
+        this.nicknameDatabase = nicknameDatabase;
     }
 
-    /**
-     * YAMLファイルからSQLiteデータベースへニックネームを移行
-     */
     public void migrateToDatabase() {
         File yamlFile = new File(plugin.getDataFolder(), "nickname.yml");
-        String dbPath = new File(plugin.getDataFolder(), "nickname.db").getPath();
         Logger logger = plugin.getLogger();
 
         if (!yamlFile.exists()) {
-            logger.info("ニックネームの保存ファイルがありません。統合をスキップします。");
             return;
         }
 
         FileConfiguration yamlConfig = YamlConfiguration.loadConfiguration(yamlFile);
         Set<String> keys = yamlConfig.getKeys(false);
         if (keys == null || keys.isEmpty()) {
-            logger.warning("ニックネームが存在しません。もしくは壊れています。統合をスキップします。");
             return;
         }
 
-        String dbUrl = "jdbc:sqlite:" + new File(dbPath).getAbsolutePath();
-        try (Connection connection = DriverManager.getConnection(dbUrl)) {
-            // テーブルなければ作成
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate("CREATE TABLE IF NOT EXISTS nicknames (uuid TEXT PRIMARY KEY, nickname TEXT NOT NULL)");
+        int migratedCount = 0;
+        for (String uuidString : keys) {
+            String nickname = yamlConfig.getString(uuidString);
+            if (nickname == null || nickname.isBlank()) {
+                continue;
             }
 
-            String insertQuery = "REPLACE INTO nicknames (uuid, nickname) VALUES (?, ?)";
-            try (PreparedStatement pstmt = connection.prepareStatement(insertQuery)) {
-                for (String uuid : keys) {
-                    String nickname = yamlConfig.getString(uuid);
-                    if (nickname != null) {
-                        pstmt.setString(1, uuid);
-                        pstmt.setString(2, nickname);
-                        pstmt.executeUpdate();
-                        logger.info("データベースへのニックネームの統合に成功しました: " + uuid);
-                    }
-                }
+            try {
+                nicknameDatabase.saveNickname(UUID.fromString(uuidString), nickname);
+                migratedCount++;
+            } catch (IllegalArgumentException exception) {
+                logger.warning("不正なUUIDのためニックネーム移行をスキップしました: " + uuidString);
             }
-        } catch (SQLException e) {
-            logger.warning("データベースへのニックネームの統合に失敗しました: " + e.getMessage());
+        }
+
+        if (migratedCount == 0) {
+            return;
+        }
+
+        File migratedFile = new File(plugin.getDataFolder(), "nickname.yml.migrated");
+        try {
+            Files.move(yamlFile.toPath(), migratedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            logger.info("nickname.yml から " + migratedCount + " 件のニックネームを移行し、元ファイルを " + migratedFile.getName() + " に退避しました。");
+        } catch (IOException exception) {
+            logger.warning("ニックネーム移行後のファイル退避に失敗しました: " + exception.getMessage());
+            logger.info("nickname.yml から " + migratedCount + " 件のニックネームを移行しました。");
         }
     }
 }

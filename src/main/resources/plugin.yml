@@ -1,11 +1,11 @@
 name: Miniutility
-version: '1.21.11'
+version: '${project.version}'
 main: org.hotamachisubaru.miniutility.MiniutilityLoader
 author: hotamachisubaru
-load: STARTUP
-api-version: "1.21"
+load: POSTWORLD
+api-version: '26.1.1'
 softdepend: [LuckPerms]
-description: copyright 2024-2025 hotamachisubaru all rights reserved.
+description: copyright 2024-2026 hotamachisubaru all rights reserved.
 commands:
   menu:
     description: 便利機能を開きます。
@@ -13,11 +13,11 @@ commands:
   load:
     description: データベースからニックネームをロードします。
     usage: /<command>
-    permission: op
+    permission: miniutility.load
   prefixtoggle:
-    description: prefixの結合を変更します
-    usage: /<command>
+    description: prefix結合の有効無効を切り替えます。
+    usage: /<command> [on|off]
 permissions:
-  load:
+  miniutility.load:
     description: データベースからニックネームをロードします。
     default: op

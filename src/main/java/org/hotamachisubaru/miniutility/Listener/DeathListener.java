@@ -5,44 +5,25 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.hotamachisubaru.miniutility.Miniutility;
-import org.hotamachisubaru.miniutility.util.APIVersionUtil;
+import org.hotamachisubaru.miniutility.MiniutilityLoader;
 
-public class DeathListener implements Listener {
+public final class DeathListener implements Listener {
 
-    private final Miniutility plugin;
+    private final MiniutilityLoader plugin;
 
-    public DeathListener(Miniutility plugin) {
+    public DeathListener(MiniutilityLoader plugin) {
         this.plugin = plugin;
     }
 
-    @EventHandler
-    public void saveDeathLocation(PlayerDeathEvent event) {
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        Location deathLoc = player.getLocation().getBlock().getLocation().add(0, 1, 0);
-        plugin.setDeathLocation(player.getUniqueId(), deathLoc);
-        // チェスト設置処理などは現状通り
-    }
+        Location currentLocation = player.getLocation();
+        if (currentLocation == null) {
+            return;
+        }
 
-    // ワープ両対応
-    public static void teleportToDeathLocation(Player player, Location location) {
-        if (APIVersionUtil.isModern()) {
-            try {
-                Player.class.getMethod("teleportAsync", Location.class).invoke(player, location);
-            } catch (Throwable e) {
-                player.teleport(location);
-            }
-        } else {
-            player.teleport(location);
-        }
-    }
-    public static Location getLastDeathLocation(Player player, Miniutility plugin) {
-        if (APIVersionUtil.isModern()) {
-            try {
-                Object loc = Player.class.getMethod("getLastDeathLocation").invoke(player);
-                if (loc instanceof Location location) return location;
-            } catch (Throwable ignore) {}
-        }
-        return plugin.getDeathLocation(player.getUniqueId());
+        Location deathLocation = currentLocation.getBlock().getLocation().add(0, 1, 0);
+        plugin.recordDeathLocation(player.getUniqueId(), deathLocation);
     }
 }

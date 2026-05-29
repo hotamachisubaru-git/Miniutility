@@ -4,14 +4,19 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public final class LuckPermsUtil {
 
     private LuckPermsUtil() {} // インスタンス化禁止
 
     public static String safePrefix(Player player) {
+        if (player == null) {
+            return "";
+        }
         try {
             LuckPerms api = LuckPermsProvider.get();
-            var meta = api.getPlayerAdapter(Player.class).getMetaData(player);
+            var meta = api.getPlayerAdapter(Player.class).getMetaData(Objects.requireNonNull(player));
             return meta.getPrefix() == null ? "" : meta.getPrefix();
         } catch (IllegalStateException | NoClassDefFoundError e) {
             // LuckPerms が無い / まだロードされていない時
