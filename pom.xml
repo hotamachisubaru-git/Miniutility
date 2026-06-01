@@ -15,7 +15,7 @@
         <java.version>25</java.version>
         <paper.version>26.1.1.build.29-alpha</paper.version>
         <luckperms.version>5.5</luckperms.version>
-        <sqlite.version>3.51.3.0</sqlite.version>
+        <sqlite.version>3.53.1.0</sqlite.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
