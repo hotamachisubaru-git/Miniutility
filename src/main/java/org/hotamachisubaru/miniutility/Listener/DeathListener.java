@@ -5,14 +5,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.hotamachisubaru.miniutility.MiniutilityLoader;
+import org.hotamachisubaru.miniutility.death.DeathLocationStore;
 
 public final class DeathListener implements Listener {
 
-    private final MiniutilityLoader plugin;
+    private final DeathLocationStore deathLocationStore;
 
-    public DeathListener(MiniutilityLoader plugin) {
-        this.plugin = plugin;
+    public DeathListener(DeathLocationStore deathLocationStore) {
+        this.deathLocationStore = deathLocationStore;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -24,6 +24,6 @@ public final class DeathListener implements Listener {
         }
 
         Location deathLocation = currentLocation.getBlock().getLocation().add(0, 1, 0);
-        plugin.recordDeathLocation(player.getUniqueId(), deathLocation);
+        deathLocationStore.record(player.getUniqueId(), deathLocation);
     }
 }
