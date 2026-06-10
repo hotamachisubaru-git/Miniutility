@@ -2,7 +2,7 @@ package org.hotamachisubaru.miniutility.Nickname;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.hotamachisubaru.miniutility.MiniutilityLoader;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,10 +14,10 @@ import java.util.logging.Logger;
 
 public final class NicknameMigration {
 
-    private final MiniutilityLoader plugin;
+    private final JavaPlugin plugin;
     private final NicknameDatabase nicknameDatabase;
 
-    public NicknameMigration(MiniutilityLoader plugin, NicknameDatabase nicknameDatabase) {
+    public NicknameMigration(JavaPlugin plugin, NicknameDatabase nicknameDatabase) {
         this.plugin = plugin;
         this.nicknameDatabase = nicknameDatabase;
     }

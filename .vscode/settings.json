@@ -6,5 +6,10 @@
         }
     },
     "java.configuration.updateBuildConfiguration": "interactive",
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "コミットメッセージは必ず日本語で作成してください。必要に応じて Conventional Commits の形式を使う場合も、説明文は日本語にしてください。"
+        }
+    ]
 }

@@ -1,0 +1,56 @@
+name: Paper バージョン更新
+
+on:
+  workflow_dispatch:
+    inputs:
+      minecraft_version:
+        description: "更新先の Minecraft/Paper バージョン"
+        required: false
+        default: "26.1.2"
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: JDK 25 を設定
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: "maven"
+
+      - name: Paper バージョンを更新
+        shell: pwsh
+        run: |
+          $minecraftVersion = "${{ inputs.minecraft_version }}"
+          if ([string]::IsNullOrWhiteSpace($minecraftVersion)) {
+            $minecraftVersion = "26.1.2"
+          }
+
+          ./scripts/update-paper-version.ps1 `
+            -MinecraftVersion $minecraftVersion `
+            -UpdateProjectVersion
+
+      - name: Maven 検証
+        run: mvn -B -DskipTests verify
+
+      - name: PR を作成
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/paper-version-update
+          delete-branch: true
+          title: "Paper バージョンを更新"
+          commit-message: "Paper バージョンを更新"
+          body: |
+            Paper の安定版ビルドに追従する自動更新です。
+
+            この PR では `minecraft.version` と `paper.version` を更新し、Maven 検証を実行します。
+          labels: dependencies,maven

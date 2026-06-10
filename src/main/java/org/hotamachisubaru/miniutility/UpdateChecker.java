@@ -2,6 +2,7 @@ package org.hotamachisubaru.miniutility;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.hotamachisubaru.miniutility.util.FoliaUtil;
 
 import java.net.URI;
@@ -25,11 +26,11 @@ public final class UpdateChecker {
     private static final Pattern TAG_NAME_PATTERN = Pattern.compile("\"tag_name\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern HTML_URL_PATTERN = Pattern.compile("\"html_url\"\\s*:\\s*\"([^\"]+)\"");
 
-    private final MiniutilityLoader plugin;
+    private final Plugin plugin;
     private volatile boolean stopped;
     private volatile String lastNotifiedVersion;
 
-    public UpdateChecker(MiniutilityLoader plugin) {
+    public UpdateChecker(Plugin plugin) {
         this.plugin = plugin;
     }
 

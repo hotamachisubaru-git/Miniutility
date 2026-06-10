@@ -1,14 +1,27 @@
-> native support for
-> Paper 26.1.1 alpha
+> ネイティブ対応
+> Paper 26.1.2 安定版
 
-# こちらは Paper 26.1.1 向けのブランチです
+# こちらは Paper 26.1.2 向けのブランチです
 
-- 開発依存は `io.papermc.paper:paper-api:26.1.1.build.29-alpha` を使用します。
-- Paper 26.1.1 系からバージョン命名が `-R0.1-SNAPSHOT` ではなく `26.1.1.build.N-alpha` 形式に変わっています。
-- 取得先は従来の snapshots ではなく `https://repo.papermc.io/repository/maven-public/` です。
+- 開発依存は `io.papermc.paper:paper-api:26.1.2.build.66-stable` を使用します。
+- Adventure は `net.kyori:adventure-bom:5.1.1` で安定版を固定します。
+- Paper 26.1 系からバージョン命名が `-R0.1-SNAPSHOT` ではなく `26.1.2.build.N-stable` 形式に変わっています。
+- 取得先は従来のスナップショットリポジトリではなく `https://repo.papermc.io/repository/maven-public/` です。
 - 開発とビルドには Java 25 が必要です。
 
-## Branch policy
+## バージョン更新
+
+- `pom.xml` の `minecraft.version` が `plugin.yml` の `api-version` に反映されます。
+- `paper.version` はコンパイル対象の Paper API です。
+- Paper の安定版ビルドへ追従する場合は、次のスクリプトを使用します。
+
+```powershell
+./scripts/update-paper-version.ps1 -MinecraftVersion 26.1.2 -UpdateProjectVersion
+```
+
+- `.github/workflows/paper-version-update.yml` から手動実行できます。週次でも同じ処理を実行し、差分がある場合は日本語タイトルと日本語コミットメッセージで PR を作成します。
+
+## ブランチ運用
 
 - Forge向け変更は `forge` ブランチにコミット・プッシュする。
 - Paper向け変更は `master` または `main` ブランチにコミット・プッシュする。
@@ -27,8 +40,8 @@ enableNormalChatMessageFormat: true
 # %player   : 発言者ID
 # %world    : 発言したワールド名（spigot側に導入したときに有効です。MultiVerseが導入されている場合は、ワールドの表示名を取得して使用します。）
 # %server   : 発言者の接続サーバー名（BungeeCord側に導入したときに有効です。）
-# %prefix   : プレフィックス（VaultとPrefix/Suffixプラグインが導入されている場合に置き換えられます）
-# %suffix   : サフィックス（VaultとPrefix/Suffixプラグインが導入されている場合に置き換えられます）
+# %prefix   : プレフィックス（Vaultとプレフィックス/サフィックスプラグインが導入されている場合に置き換えられます）
+# %suffix   : サフィックス（Vaultとプレフィックス/サフィックスプラグインが導入されている場合に置き換えられます）
 # %date     : 日付
 # %time     : 時刻
 # %msg      : 発言内容（Japanize変換された場合は、Japanize結果を含みます。）
@@ -48,7 +61,7 @@ displayNormalChatOnConsole: true
 ## コマンド
 
 - `/menu` メニューを開きます。
-- `/prefixtoggle [on|off]` Prefix 結合の有効無効を切り替えます。
+- `/prefixtoggle [on|off]` プレフィックス結合の有効無効を切り替えます。
 - `/load` データベースからニックネームを再読み込みします。
 
 ## 機能一覧

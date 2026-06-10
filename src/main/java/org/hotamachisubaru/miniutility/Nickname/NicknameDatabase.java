@@ -1,6 +1,6 @@
 package org.hotamachisubaru.miniutility.Nickname;
 
-import org.hotamachisubaru.miniutility.MiniutilityLoader;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.sql.Connection;
@@ -19,7 +19,7 @@ public final class NicknameDatabase {
     private final Logger logger;
     private final String dbUrl;
 
-    public NicknameDatabase(MiniutilityLoader plugin) {
+    public NicknameDatabase(JavaPlugin plugin) {
         this.logger = plugin.getLogger();
         String configuredPath = plugin.getConfig().getString("database.path", "nickname.db");
         File dbFile = new File(plugin.getDataFolder(), configuredPath);
