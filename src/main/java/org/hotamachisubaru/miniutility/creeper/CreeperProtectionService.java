@@ -2,7 +2,7 @@ package org.hotamachisubaru.miniutility.creeper;
 
 public final class CreeperProtectionService {
 
-    private volatile boolean enabled;
+    private boolean enabled;
 
     public CreeperProtectionService(boolean enabled) {
         this.enabled = enabled;

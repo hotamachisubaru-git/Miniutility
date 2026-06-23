@@ -1,22 +1,23 @@
 > ネイティブ対応
-> Paper 26.1.2 安定版
+> Paper 26.2 Alpha版
 
-# こちらは Paper 26.1.2 向けのブランチです
+# こちらは Paper 26.2 向けのブランチです
 
-- 開発依存は `io.papermc.paper:paper-api:26.1.2.build.66-stable` を使用します。
+- 開発依存は `io.papermc.paper:paper-api` を使用し、正確な版は `pom.xml` の `paper.version` で管理します。
 - Adventure は `net.kyori:adventure-bom:5.1.1` で安定版を固定します。
-- Paper 26.1 系からバージョン命名が `-R0.1-SNAPSHOT` ではなく `26.1.2.build.N-stable` 形式に変わっています。
+- Paper 26.2 Alpha版のバージョン命名は `26.2.build.N-alpha` 形式です。
 - 取得先は従来のスナップショットリポジトリではなく `https://repo.papermc.io/repository/maven-public/` です。
 - 開発とビルドには Java 25 が必要です。
+- 通常の Paper サーバーを対象とし、Foliaには対応しません。
 
 ## バージョン更新
 
 - `pom.xml` の `minecraft.version` が `plugin.yml` の `api-version` に反映されます。
 - `paper.version` はコンパイル対象の Paper API です。
-- Paper の安定版ビルドへ追従する場合は、次のスクリプトを使用します。
+- Paper 26.2 のAlphaビルドへ追従する場合は、次のスクリプトを使用します。
 
 ```powershell
-./scripts/update-paper-version.ps1 -MinecraftVersion 26.1.2 -UpdateProjectVersion
+./scripts/update-paper-version.ps1 -MinecraftVersion 26.2 -Channel ALPHA -UpdateProjectVersion
 ```
 
 - `.github/workflows/paper-version-update.yml` から手動実行できます。週次でも同じ処理を実行し、差分がある場合は日本語タイトルと日本語コミットメッセージで PR を作成します。

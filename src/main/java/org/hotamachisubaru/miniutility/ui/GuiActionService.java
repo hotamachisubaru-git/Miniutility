@@ -1,6 +1,7 @@
-package org.hotamachisubaru.miniutility.GUI;
+package org.hotamachisubaru.miniutility.ui;
 
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,22 +11,22 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MenuType;
 import org.bukkit.plugin.Plugin;
-import org.hotamachisubaru.miniutility.Listener.Chat;
-import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
 import org.hotamachisubaru.miniutility.creeper.CreeperProtectionService;
 import org.hotamachisubaru.miniutility.death.DeathLocationStore;
+import org.hotamachisubaru.miniutility.listeners.ChatListener;
+import org.hotamachisubaru.miniutility.nicknames.NicknameManager;
 import org.hotamachisubaru.miniutility.util.ComponentUtil;
-import org.hotamachisubaru.miniutility.util.FoliaUtil;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public final class GuiActionService {
 
-    private static final int TRASH_CONFIRM_SLOT = 53;
-
     private final Plugin plugin;
     private final DeathLocationStore deathLocationStore;
-    private final Chat chatListener;
+    private final ChatListener chatListener;
     private final NicknameManager nicknameManager;
     private final CreeperProtectionService creeperProtectionService;
     private final TrashBoxSessionStore trashBoxSessionStore;
@@ -33,26 +34,31 @@ public final class GuiActionService {
     public GuiActionService(
             Plugin plugin,
             DeathLocationStore deathLocationStore,
-            Chat chatListener,
+            ChatListener chatListener,
             NicknameManager nicknameManager,
             CreeperProtectionService creeperProtectionService,
             TrashBoxSessionStore trashBoxSessionStore
     ) {
-        this.plugin = Objects.requireNonNull(plugin);
-        this.deathLocationStore = Objects.requireNonNull(deathLocationStore);
-        this.chatListener = Objects.requireNonNull(chatListener);
-        this.nicknameManager = Objects.requireNonNull(nicknameManager);
-        this.creeperProtectionService = Objects.requireNonNull(creeperProtectionService);
-        this.trashBoxSessionStore = Objects.requireNonNull(trashBoxSessionStore);
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        this.deathLocationStore = Objects.requireNonNull(deathLocationStore, "deathLocationStore");
+        this.chatListener = Objects.requireNonNull(chatListener, "chatListener");
+        this.nicknameManager = Objects.requireNonNull(nicknameManager, "nicknameManager");
+        this.creeperProtectionService = Objects.requireNonNull(
+                creeperProtectionService,
+                "creeperProtectionService"
+        );
+        this.trashBoxSessionStore = Objects.requireNonNull(trashBoxSessionStore, "trashBoxSessionStore");
     }
 
     public void handleMenuClick(Player player, ItemStack clickedItem) {
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(clickedItem, "clickedItem");
         switch (clickedItem.getType()) {
             case ARMOR_STAND -> teleportToDeathLocation(player);
             case ENDER_CHEST -> player.openInventory(player.getEnderChest());
             case CRAFTING_TABLE -> openCraftingTable(player);
-            case DROPPER -> player.openInventory(Objects.requireNonNull(GUI.createTrashBox(player.getUniqueId(), null)));
-            case NAME_TAG -> player.openInventory(Objects.requireNonNull(GUI.createNicknameMenu(player.getUniqueId())));
+            case DROPPER -> player.openInventory(GuiFactory.createTrashBox(player.getUniqueId()));
+            case NAME_TAG -> player.openInventory(GuiFactory.createNicknameMenu(player.getUniqueId()));
             case CREEPER_HEAD -> toggleCreeperProtection(player);
             case EXPERIENCE_BOTTLE -> beginExperienceInput(player);
             case COMPASS -> toggleGameMode(player);
@@ -61,6 +67,8 @@ public final class GuiActionService {
     }
 
     public void handleNicknameClick(Player player, ItemStack clickedItem) {
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(clickedItem, "clickedItem");
         switch (clickedItem.getType()) {
             case PAPER -> {
                 player.closeInventory();
@@ -81,17 +89,21 @@ public final class GuiActionService {
         }
     }
 
-    public boolean handleTrashClick(Player player, Inventory topInventory, ItemStack clickedItem, int rawSlot) {
-        if (rawSlot != TRASH_CONFIRM_SLOT || clickedItem.getType() != Material.LIME_WOOL) {
-            return false;
+    public void handleTrashAction(Player player, Inventory topInventory, ItemStack clickedItem) {
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(topInventory, "topInventory");
+        Objects.requireNonNull(clickedItem, "clickedItem");
+        if (clickedItem.getType() != Material.LIME_WOOL) {
+            return;
         }
 
         trashBoxSessionStore.save(player.getUniqueId(), topInventory);
-        player.openInventory(Objects.requireNonNull(GUI.createTrashConfirm(player.getUniqueId())));
-        return true;
+        player.openInventory(GuiFactory.createTrashConfirm(player.getUniqueId()));
     }
 
     public void handleTrashConfirmClick(Player player, ItemStack clickedItem) {
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(clickedItem, "clickedItem");
         if (clickedItem.getType() == Material.LIME_WOOL) {
             trashBoxSessionStore.remove(player.getUniqueId());
             player.closeInventory();
@@ -101,30 +113,55 @@ public final class GuiActionService {
 
         if (clickedItem.getType() == Material.RED_WOOL) {
             ItemStack[] snapshot = trashBoxSessionStore.remove(player.getUniqueId());
-            player.openInventory(Objects.requireNonNull(GUI.createTrashBox(player.getUniqueId(), snapshot)));
+            player.openInventory(GuiFactory.createTrashBox(player.getUniqueId(), snapshot));
             player.sendMessage(ComponentUtil.text("削除をキャンセルしました。", NamedTextColor.YELLOW));
         }
     }
 
     private void teleportToDeathLocation(Player player) {
-        Location deathLocation = deathLocationStore.get(player.getUniqueId());
-        if (deathLocation == null || deathLocation.getWorld() == null) {
+        Optional<Location> storedLocation = deathLocationStore.find(player.getUniqueId());
+        if (storedLocation.isEmpty()) {
             player.sendMessage(ComponentUtil.text("死亡地点が見つかりません。", NamedTextColor.RED));
             return;
         }
 
-        FoliaUtil.runAtPlayer(plugin, player.getUniqueId(), () -> {
-            player.teleportAsync(deathLocation);
-            player.sendMessage(ComponentUtil.text("死亡地点にワープしました。", NamedTextColor.GREEN));
+        Location deathLocation = storedLocation.orElseThrow();
+        if (deathLocation.getWorld() == null) {
+            player.sendMessage(ComponentUtil.text("死亡地点のワールドが見つかりません。", NamedTextColor.RED));
+            return;
+        }
+        UUID playerId = player.getUniqueId();
+        player.teleportAsync(deathLocation).whenComplete((succeeded, failure) ->
+                notifyTeleportResult(playerId, Boolean.TRUE.equals(succeeded), failure)
+        );
+    }
+
+    private void notifyTeleportResult(UUID playerId, boolean succeeded, Throwable failure) {
+        if (!plugin.isEnabled()) {
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            Player player = Bukkit.getPlayer(playerId);
+            if (player == null) {
+                return;
+            }
+            if (failure != null) {
+                plugin.getLogger().log(Level.WARNING, "死亡地点へのテレポートに失敗しました。", failure);
+            }
+            player.sendMessage(ComponentUtil.text(
+                    succeeded ? "死亡地点にワープしました。" : "死亡地点へのワープに失敗しました。",
+                    succeeded ? NamedTextColor.GREEN : NamedTextColor.RED
+            ));
         });
     }
 
     private void openCraftingTable(Player player) {
         InventoryView view = MenuType.CRAFTING.create(
-                Objects.requireNonNull(player),
+                player,
                 ComponentUtil.text("作業台")
         );
-        player.openInventory(Objects.requireNonNull(view));
+        player.openInventory(Objects.requireNonNull(view, "crafting inventory view"));
     }
 
     private void toggleCreeperProtection(Player player) {

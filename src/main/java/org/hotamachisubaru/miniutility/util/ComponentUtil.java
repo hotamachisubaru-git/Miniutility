@@ -4,10 +4,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
-@SuppressWarnings("null")
+import java.util.Objects;
+
 public final class ComponentUtil {
 
     private static final PlainTextComponentSerializer PLAIN_TEXT = PlainTextComponentSerializer.plainText();
@@ -17,56 +16,44 @@ public final class ComponentUtil {
     private ComponentUtil() {
     }
 
-    public static @NonNull Component empty() {
-        return Component.empty();
+    public static Component text(String message) {
+        return Component.text(Objects.requireNonNullElse(message, ""));
     }
 
-    public static @NonNull Component text(@Nullable String message) {
-        return Component.text(message == null ? "" : message);
+    public static Component text(String message, NamedTextColor color) {
+        return Component.text(
+                Objects.requireNonNullElse(message, ""),
+                Objects.requireNonNull(color, "color")
+        );
     }
 
-    public static @NonNull Component text(@Nullable String message, @Nullable NamedTextColor color) {
-        return Component.text(message == null ? "" : message, color);
+    public static String plain(Component component) {
+        return PLAIN_TEXT.serialize(Objects.requireNonNull(component, "component"));
     }
 
-    public static @NonNull String plain(@Nullable Component component) {
-        return component == null ? "" : PLAIN_TEXT.serialize(component);
+    public static Component legacy(String legacyText) {
+        String normalized = normalizeLegacyMarkers(legacyText);
+        return normalized.isEmpty() ? Component.empty() : LEGACY_AMPERSAND.deserialize(normalized);
     }
 
-    public static @NonNull Component legacy(@Nullable String legacyText) {
-        if (legacyText == null || legacyText.isEmpty()) {
-            return Component.empty();
-        }
-        return LEGACY_AMPERSAND.deserialize(normalizeLegacyMarkers(legacyText));
+    public static Component legacySection(String legacyText) {
+        return legacyText == null || legacyText.isEmpty()
+                ? Component.empty()
+                : LEGACY_SECTION.deserialize(legacyText);
     }
 
-    public static @NonNull Component legacySection(@Nullable String legacyText) {
-        if (legacyText == null || legacyText.isEmpty()) {
-            return Component.empty();
-        }
-        return LEGACY_SECTION.deserialize(legacyText);
+    public static String ampersandToSection(String legacyText) {
+        return LEGACY_SECTION.serialize(LEGACY_AMPERSAND.deserialize(normalizeLegacyMarkers(legacyText)));
     }
 
-    public static @NonNull String serializeSection(@Nullable Component component) {
-        return LEGACY_SECTION.serialize(component == null ? Component.empty() : component);
+    public static Component chatMessage(Component displayName, Component message) {
+        return Component.empty()
+                .append(Objects.requireNonNull(displayName, "displayName"))
+                .append(Component.text(" » "))
+                .append(Objects.requireNonNull(message, "message"));
     }
 
-    public static @NonNull String ampersandToSection(@Nullable String legacyText) {
-        return serializeSection(LEGACY_AMPERSAND.deserialize(normalizeLegacyMarkers(legacyText)));
-    }
-
-    public static @NonNull Component append(@NonNull Component component, @NonNull Component child) {
-        return component.append(child);
-    }
-
-    public static @NonNull Component chatMessage(@Nullable Component displayName, @Nullable Component message) {
-        return empty()
-                .append(displayName == null ? empty() : displayName)
-                .append(text(" » "))
-                .append(message == null ? empty() : message);
-    }
-
-    private static @NonNull String normalizeLegacyMarkers(@Nullable String legacyText) {
-        return legacyText == null ? "" : legacyText.replace('§', '&');
+    private static String normalizeLegacyMarkers(String legacyText) {
+        return Objects.requireNonNullElse(legacyText, "").replace('§', '&');
     }
 }

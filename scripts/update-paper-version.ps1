@@ -2,11 +2,11 @@ param(
     [Parameter(Mandatory = $true)]
     [string] $MinecraftVersion,
 
-    [string] $Channel = "STABLE",
+    [string] $Channel = "ALPHA",
 
     [switch] $UpdateProjectVersion,
 
-    [string] $ProjectVersionSuffix = "stable.1",
+    [string] $ProjectVersionSuffix,
 
     [string] $PomPath = (Join-Path $PSScriptRoot "..\pom.xml")
 )
@@ -15,6 +15,11 @@ $ErrorActionPreference = "Stop"
 
 $resolvedPomPath = Resolve-Path $PomPath
 $normalizedChannel = $Channel.ToUpperInvariant()
+$normalizedProjectVersionSuffix = if ([string]::IsNullOrWhiteSpace($ProjectVersionSuffix)) {
+    "$($normalizedChannel.ToLowerInvariant()).1"
+} else {
+    $ProjectVersionSuffix
+}
 $channelDisplayName = switch ($normalizedChannel) {
     "STABLE" { "安定版" }
     "ALPHA" { "アルファ版" }
@@ -71,7 +76,7 @@ Set-PomProperty -Document $pom -Properties $properties -Name "paper.version" -Va
 
 if ($UpdateProjectVersion) {
     $versionNode = $project.SelectSingleNode("m:version", $namespaceManager)
-    $versionNode.InnerText = "$MinecraftVersion-$ProjectVersionSuffix"
+    $versionNode.InnerText = "$MinecraftVersion-$normalizedProjectVersionSuffix"
 }
 
 $writerSettings = [System.Xml.XmlWriterSettings]::new()

@@ -6,15 +6,15 @@
 
     <groupId>org.hotamachisubaru</groupId>
     <artifactId>Miniutility</artifactId>
-    <version>26.1.2-stable.1</version>
+    <version>26.2-alpha.1</version>
     <packaging>jar</packaging>
 
     <name>Miniutility</name>
 
     <properties>
         <java.version>25</java.version>
-        <minecraft.version>26.1.2</minecraft.version>
-        <paper.version>26.1.2.build.66-stable</paper.version>
+        <minecraft.version>26.2</minecraft.version>
+        <paper.version>26.2.build.31-alpha</paper.version>
         <adventure.version>5.1.1</adventure.version>
         <luckperms.version>5.5</luckperms.version>
         <sqlite.version>3.51.3.0</sqlite.version>
@@ -57,6 +57,12 @@
                             </transformers>
                             <filters>
                                 <filter>
+                                    <artifact>org.xerial:sqlite-jdbc</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.SF</exclude>
@@ -77,6 +83,11 @@
                 <version>3.15.0</version>
                 <configuration>
                     <release>${java.version}</release>
+                    <parameters>true</parameters>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

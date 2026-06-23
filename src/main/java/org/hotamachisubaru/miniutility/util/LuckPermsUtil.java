@@ -8,18 +8,17 @@ import java.util.Objects;
 
 public final class LuckPermsUtil {
 
-    private LuckPermsUtil() {} // インスタンス化禁止
+    private LuckPermsUtil() {
+    }
 
-    public static String safePrefix(Player player) {
-        if (player == null) {
-            return "";
-        }
+    public static String prefixOrEmpty(Player player) {
+        Objects.requireNonNull(player, "player");
         try {
-            LuckPerms api = LuckPermsProvider.get();
-            var meta = api.getPlayerAdapter(Player.class).getMetaData(Objects.requireNonNull(player));
-            return meta.getPrefix() == null ? "" : meta.getPrefix();
-        } catch (IllegalStateException | NoClassDefFoundError e) {
-            // LuckPerms が無い / まだロードされていない時
+            LuckPerms luckPerms = LuckPermsProvider.get();
+            String prefix = luckPerms.getPlayerAdapter(Player.class).getMetaData(player).getPrefix();
+            return Objects.requireNonNullElse(prefix, "");
+        } catch (IllegalStateException | NoClassDefFoundError ignored) {
+            // LuckPerms is an optional dependency and may be unavailable during startup or shutdown.
             return "";
         }
     }

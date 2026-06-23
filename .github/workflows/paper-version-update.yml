@@ -6,7 +6,16 @@ on:
       minecraft_version:
         description: "更新先の Minecraft/Paper バージョン"
         required: false
-        default: "26.1.2"
+        default: "26.2"
+      channel:
+        description: "追従するPaperビルドのチャンネル"
+        required: false
+        type: choice
+        default: "ALPHA"
+        options:
+          - ALPHA
+          - BETA
+          - STABLE
   schedule:
     - cron: "0 3 * * 1"
 
@@ -32,11 +41,16 @@ jobs:
         run: |
           $minecraftVersion = "${{ inputs.minecraft_version }}"
           if ([string]::IsNullOrWhiteSpace($minecraftVersion)) {
-            $minecraftVersion = "26.1.2"
+            $minecraftVersion = "26.2"
+          }
+          $channel = "${{ inputs.channel }}"
+          if ([string]::IsNullOrWhiteSpace($channel)) {
+            $channel = "ALPHA"
           }
 
           ./scripts/update-paper-version.ps1 `
             -MinecraftVersion $minecraftVersion `
+            -Channel $channel `
             -UpdateProjectVersion
 
       - name: Maven 検証
@@ -50,7 +64,7 @@ jobs:
           title: "Paper バージョンを更新"
           commit-message: "Paper バージョンを更新"
           body: |
-            Paper の安定版ビルドに追従する自動更新です。
+            Paper 26.2 の指定チャンネルのビルドに追従する自動更新です。
 
             この PR では `minecraft.version` と `paper.version` を更新し、Maven 検証を実行します。
           labels: dependencies,maven

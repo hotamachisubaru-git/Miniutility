@@ -1,23 +1,26 @@
 package org.hotamachisubaru.miniutility.bootstrap;
 
-import org.hotamachisubaru.miniutility.Command.CommandManager;
-import org.hotamachisubaru.miniutility.GUI.GuiActionService;
-import org.hotamachisubaru.miniutility.GUI.TrashBoxSessionStore;
-import org.hotamachisubaru.miniutility.Listener.Chat;
-import org.hotamachisubaru.miniutility.Listener.CreeperProtectionListener;
-import org.hotamachisubaru.miniutility.Listener.DeathListener;
-import org.hotamachisubaru.miniutility.Listener.GuiListener;
 import org.hotamachisubaru.miniutility.Miniutility;
-import org.hotamachisubaru.miniutility.Nickname.NicknameDatabase;
-import org.hotamachisubaru.miniutility.Nickname.NicknameManager;
-import org.hotamachisubaru.miniutility.Nickname.NicknameMigration;
 import org.hotamachisubaru.miniutility.UpdateChecker;
+import org.hotamachisubaru.miniutility.commands.MiniutilityCommand;
 import org.hotamachisubaru.miniutility.creeper.CreeperProtectionService;
 import org.hotamachisubaru.miniutility.death.DeathLocationStore;
+import org.hotamachisubaru.miniutility.listeners.ChatListener;
+import org.hotamachisubaru.miniutility.listeners.CreeperProtectionListener;
+import org.hotamachisubaru.miniutility.listeners.DeathListener;
+import org.hotamachisubaru.miniutility.listeners.GuiListener;
+import org.hotamachisubaru.miniutility.nicknames.NicknameDatabase;
+import org.hotamachisubaru.miniutility.nicknames.NicknameManager;
+import org.hotamachisubaru.miniutility.nicknames.NicknameMigration;
 import org.hotamachisubaru.miniutility.registry.CommandRegistry;
 import org.hotamachisubaru.miniutility.registry.ListenerRegistry;
+import org.hotamachisubaru.miniutility.ui.GuiActionService;
+import org.hotamachisubaru.miniutility.ui.TrashBoxSessionStore;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 
 public final class PluginBootstrap {
 
@@ -25,8 +28,8 @@ public final class PluginBootstrap {
     private final DeathLocationStore deathLocationStore;
 
     public PluginBootstrap(Miniutility plugin, DeathLocationStore deathLocationStore) {
-        this.plugin = plugin;
-        this.deathLocationStore = deathLocationStore;
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        this.deathLocationStore = Objects.requireNonNull(deathLocationStore, "deathLocationStore");
     }
 
     public PluginRuntime enable() {
@@ -40,7 +43,7 @@ public final class PluginBootstrap {
         NicknameManager nicknameManager = new NicknameManager(plugin, nicknameDatabase);
         nicknameManager.reload();
 
-        Chat chatListener = new Chat(plugin, nicknameManager);
+        ChatListener chatListener = new ChatListener(plugin, nicknameManager);
         CreeperProtectionService creeperProtectionService = new CreeperProtectionService(true);
         CreeperProtectionListener creeperProtectionListener = new CreeperProtectionListener(creeperProtectionService);
         TrashBoxSessionStore trashBoxSessionStore = new TrashBoxSessionStore();
@@ -57,7 +60,7 @@ public final class PluginBootstrap {
         registerCommands();
 
         if (plugin.getServer().getPluginManager().getPlugin("LuckPerms") == null) {
-            plugin.getLogger().info("LuckPermsが見つかりません。プレフィックスなしで続行します。");
+            plugin.getLogger().info("LuckPerms が見つかりません。プレフィックスなしで続行します。");
         }
 
         UpdateChecker updateChecker = new UpdateChecker(plugin);
@@ -67,7 +70,7 @@ public final class PluginBootstrap {
     }
 
     private void registerListeners(
-            Chat chatListener,
+            ChatListener chatListener,
             CreeperProtectionListener creeperProtectionListener,
             TrashBoxSessionStore trashBoxSessionStore,
             GuiActionService guiActionService
@@ -81,13 +84,20 @@ public final class PluginBootstrap {
     }
 
     private void registerCommands() {
-        new CommandRegistry(plugin).register(new CommandManager(plugin), "menu", "load", "prefixtoggle");
+        new CommandRegistry(plugin).register(
+                new MiniutilityCommand(plugin),
+                "menu",
+                "load",
+                "prefixtoggle"
+        );
     }
 
     private void ensureDataFolder() {
-        File dataFolder = plugin.getDataFolder();
-        if (!dataFolder.exists() && !dataFolder.mkdirs()) {
-            throw new IllegalStateException("データフォルダの作成に失敗しました: " + dataFolder.getAbsolutePath());
+        Path dataFolder = plugin.getDataFolder().toPath();
+        try {
+            Files.createDirectories(dataFolder);
+        } catch (IOException exception) {
+            throw new IllegalStateException("データフォルダの作成に失敗しました: " + dataFolder, exception);
         }
     }
 }
