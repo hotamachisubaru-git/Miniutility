@@ -10,8 +10,8 @@ updates:
     open-pull-requests-limit: 10
     # PR のメタ情報（任意）
     labels: ["dependencies", "maven"]
-    reviewers: ["minamikana-git"]  # レビュアー GitHub ユーザー名
-    assignees: ["minamikana-git"]
+    reviewers: ["hotamachisubaru-git"]  # レビュアー GitHub ユーザー名
+    assignees: ["hotamachisubaru-git"]
     # まとめて更新（任意）：レビュー本数を減らせます
     groups:
       testing:
