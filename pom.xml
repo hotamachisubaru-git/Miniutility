@@ -14,7 +14,7 @@
     <properties>
         <java.version>25</java.version>
         <minecraft.version>26.2</minecraft.version>
-        <paper.version>26.2.build.31-alpha</paper.version>
+        <paper.version>26.2.build.34-alpha</paper.version>
         <adventure.version>5.1.1</adventure.version>
         <luckperms.version>5.5</luckperms.version>
         <sqlite.version>3.53.2.0</sqlite.version>
