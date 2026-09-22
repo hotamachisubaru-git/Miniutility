@@ -14,10 +14,10 @@
     <properties>
         <java.version>25</java.version>
         <minecraft.version>26.2</minecraft.version>
-        <paper.version>26.2.build.31-alpha</paper.version>
-        <adventure.version>5.1.1</adventure.version>
+        <paper.version>26.2.build.127-stable</paper.version>
+        <adventure.version>5.2.0</adventure.version>
         <luckperms.version>5.5</luckperms.version>
-        <sqlite.version>3.53.2.0</sqlite.version>
+        <sqlite.version>3.53.4.0</sqlite.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -80,7 +80,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.15.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <release>${java.version}</release>
                     <parameters>true</parameters>
