@@ -20,7 +20,9 @@ mvn -B -ntp clean verify
 
 `JAVA_HOME`は使用するJDK 25のインストール先に合わせてください。`java -version`が25でも、Mavenの`JAVA_HOME`が古い場合はビルドできません。`mvn -version`でも確認できます。
 
-成果物は `target/Miniutility-26.3.jar` です。検証ではGUIの画面切替、ゴミ箱、チャット入力、ニックネームとSQLite、死亡地点、クリーパー保護、コマンド、更新通知、終了処理の回帰テストを実行します。テスト・サーバー起動確認だけでは、Minecraftクライアントによる全GUI操作を検証したことにはなりません。
+成果物は `target/Miniutility-26.3.jar` です。検証ではGUIの画面切替、ゴミ箱、チャット入力、ニックネームとSQLite、死亡地点、クリーパー保護、コマンド、更新通知、終了処理の回帰テストを実行します。
+
+2026-10-13にJava 25とPaper 26.3 stable build 178で実サーバーを起動し、Miniutility 26.3の有効化、3コマンドの登録、`/load`によるSQLiteデータの再読み込み、コンソールからのプレイヤー専用コマンド拒否を確認しました。`stop`によるプラグイン終了・ワールド保存・正常終了と、SQLiteの`integrity_check: ok`も確認済みです。Windows PowerShell 5.1で起動スクリプトの事前確認も通過しています。回帰テスト103件はすべて成功しました。Minecraftクライアントによる全GUI操作は未検証です。
 
 ## サーバーへの導入・起動
 
