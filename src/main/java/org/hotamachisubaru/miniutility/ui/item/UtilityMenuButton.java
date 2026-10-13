@@ -3,6 +3,7 @@ package org.hotamachisubaru.miniutility.ui.item;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.ItemStack;
 import org.hotamachisubaru.miniutility.ui.action.MenuButtonItemFactory;
+import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -22,8 +23,8 @@ public final class UtilityMenuButton {
 
     private UtilityMenuButton(MenuButtonSpec menuItem, @Nullable Component nameOverride, @Nullable Component loreOverride) {
         this.menuItem = Objects.requireNonNull(menuItem, "menuItem");
-        this.name = nameOverride != null ? nameOverride : Component.text(menuItem.getName());
-        this.lore = loreOverride != null ? loreOverride : Component.text(menuItem.getLore());
+        this.name = nameOverride != null ? nameOverride : LegacyTextFormatter.text(menuItem.getName());
+        this.lore = loreOverride != null ? loreOverride : LegacyTextFormatter.text(menuItem.getLore());
     }
 
     /**

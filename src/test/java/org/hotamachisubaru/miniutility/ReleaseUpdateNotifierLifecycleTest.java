@@ -8,11 +8,11 @@ import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -72,8 +72,7 @@ class ReleaseUpdateNotifierLifecycleTest {
     void completedResponseQueuedBeforeStopCannotNotifyAfterStop() {
         CompletableFuture<HttpResponse<String>> request = new CompletableFuture<>();
         stubRequest(request);
-        ArgumentCaptor<Runnable> notification = ArgumentCaptor.forClass(Runnable.class);
-        when(scheduler.runTask(eq(plugin), notification.capture())).thenReturn(mock(BukkitTask.class));
+        List<Runnable> notifications = captureNotifications();
         try (var bukkit = mockStatic(Bukkit.class)) {
             bukkit.when(Bukkit::getScheduler).thenReturn(scheduler);
             ReleaseUpdateNotifier checker = new ReleaseUpdateNotifier(plugin, client);
@@ -83,7 +82,7 @@ class ReleaseUpdateNotifierLifecycleTest {
             verify(scheduler).runTask(eq(plugin), any(Runnable.class));
 
             checker.stop();
-            notification.getValue().run();
+            notifications.getLast().run();
 
             bukkit.verify(Bukkit::getOnlinePlayers, never());
             verifyNoInteractions(logger);
@@ -120,8 +119,7 @@ class ReleaseUpdateNotifierLifecycleTest {
         CompletableFuture<HttpResponse<String>> secondRequest = new CompletableFuture<>();
         when(client.sendAsync(any(HttpRequest.class), anyStringBodyHandler()))
                 .thenReturn(firstRequest).thenReturn(secondRequest);
-        ArgumentCaptor<Runnable> notification = ArgumentCaptor.forClass(Runnable.class);
-        when(scheduler.runTask(eq(plugin), notification.capture())).thenReturn(mock(BukkitTask.class));
+        List<Runnable> notifications = captureNotifications();
         Player operator = mock(Player.class);
         when(operator.isOp()).thenReturn(true);
         Player regularPlayer = mock(Player.class);
@@ -134,10 +132,10 @@ class ReleaseUpdateNotifierLifecycleTest {
             firstRequest.complete(newerRelease());
             verify(operator, never()).sendMessage(anyString());
 
-            notification.getValue().run();
+            notifications.getLast().run();
             checker.checkNow();
             secondRequest.complete(newerRelease());
-            notification.getValue().run();
+            notifications.getLast().run();
 
             verify(operator).sendMessage(contains("新しいバージョン 26.4"));
             verify(regularPlayer, never()).sendMessage(anyString());
@@ -152,8 +150,7 @@ class ReleaseUpdateNotifierLifecycleTest {
         CompletableFuture<HttpResponse<String>> currentRequest = new CompletableFuture<>();
         when(client.sendAsync(any(HttpRequest.class), anyStringBodyHandler()))
                 .thenReturn(previousRequest).thenReturn(currentRequest);
-        ArgumentCaptor<Runnable> notification = ArgumentCaptor.forClass(Runnable.class);
-        when(scheduler.runTask(eq(plugin), notification.capture())).thenReturn(mock(BukkitTask.class));
+        List<Runnable> notifications = captureNotifications();
         try (var bukkit = mockStatic(Bukkit.class)) {
             bukkit.when(Bukkit::getScheduler).thenReturn(scheduler);
             bukkit.when(Bukkit::getOnlinePlayers).thenReturn(List.of());
@@ -161,7 +158,7 @@ class ReleaseUpdateNotifierLifecycleTest {
             checker.start();
             checker.checkNow();
             previousRequest.complete(newerRelease());
-            Runnable previousNotification = notification.getValue();
+            Runnable previousNotification = notifications.getLast();
 
             checker.stop();
             checker.start();
@@ -172,7 +169,7 @@ class ReleaseUpdateNotifierLifecycleTest {
 
             checker.checkNow();
             currentRequest.complete(newerRelease());
-            notification.getValue().run();
+            notifications.getLast().run();
             verify(logger).info(contains("新しいバージョン 26.4"));
             checker.stop();
         }
@@ -180,6 +177,16 @@ class ReleaseUpdateNotifierLifecycleTest {
 
     private void stubRequest(CompletableFuture<HttpResponse<String>> response) {
         when(client.sendAsync(any(HttpRequest.class), anyStringBodyHandler())).thenReturn(response);
+    }
+
+    private List<Runnable> captureNotifications() {
+        List<Runnable> notifications = new ArrayList<>();
+        BukkitTask notificationTask = mock(BukkitTask.class);
+        doAnswer(invocation -> {
+            notifications.add(invocation.getArgument(1, Runnable.class));
+            return notificationTask;
+        }).<BukkitScheduler>when(scheduler).runTask(eq(plugin), any(Runnable.class));
+        return notifications;
     }
 
     private static HttpResponse<String> newerRelease() {

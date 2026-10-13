@@ -66,11 +66,12 @@ public final class PlayerDeathLocations {
         if (location == null) {
             return Optional.empty();
         }
-        World world = location.worldId() == null ? null : worldResolver.apply(location.worldId());
-        if (location.worldId() != null && world == null) {
+        UUID worldId = location.worldId();
+        World world = worldId == null ? null : worldResolver.apply(worldId);
+        if (worldId != null && world == null) {
             return Optional.empty();
         }
-        return Optional.of(new Location(world, location.x(), location.y(), location.z(),
+        return Optional.<Location>of(new Location(world, location.x(), location.y(), location.z(),
                 location.yaw(), location.pitch()));
     }
 

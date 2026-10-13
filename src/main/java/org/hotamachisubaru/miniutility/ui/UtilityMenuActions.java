@@ -161,8 +161,8 @@ public final class UtilityMenuActions {
         }
 
         if (clickedItem.getType() == Material.RED_WOOL) {
-            ItemStack[] snapshot = trashBoxSessionStore.remove(player.getUniqueId());
-            player.openInventory(UtilityMenuFactory.createTrashBox(player.getUniqueId(), snapshot));
+            @Nullable ItemStack[] snapshot = trashBoxSessionStore.remove(player.getUniqueId());
+            player.openInventory(UtilityMenuFactory.createTrashBox(player.getUniqueId(), Objects.requireNonNull(snapshot)));
             player.sendMessage(LegacyTextFormatter.text("削除をキャンセルしました。", NamedTextColor.YELLOW));
         }
     }
@@ -217,8 +217,8 @@ public final class UtilityMenuActions {
         InventoryView view = MenuType.CRAFTING.builder()
                 .title(LegacyTextFormatter.text("作業台"))
                 .checkReachable(false)
-                .build(player);
-        player.openInventory(view);
+                .build(Objects.requireNonNull(player, "player"));
+        player.openInventory(Objects.requireNonNull(view, "crafting inventory view"));
     }
 
     private void toggleCreeperProtection(Player player) {

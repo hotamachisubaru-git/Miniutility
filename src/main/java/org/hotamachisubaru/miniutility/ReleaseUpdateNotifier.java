@@ -133,8 +133,10 @@ public final class ReleaseUpdateNotifier {
                 .GET()
                 .build();
 
-        pendingRequest = httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        pendingRequest.whenComplete((response, failure) -> runOnServerThread(requestGeneration, () -> {
+        CompletableFuture<HttpResponse<String>> requestFuture = httpClient.sendAsync(
+                request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        pendingRequest = requestFuture;
+        requestFuture.whenComplete((response, failure) -> runOnServerThread(requestGeneration, () -> {
                     if (failure != null) {
                         plugin.getLogger().log(
                                 Level.WARNING,
@@ -174,9 +176,11 @@ public final class ReleaseUpdateNotifier {
         lastNotifiedVersion = latestVersion;
         String message = "新しいバージョン " + latestVersion + " が利用可能です。ダウンロード: " + release.url();
         plugin.getLogger().info(message);
-        Bukkit.getOnlinePlayers().stream()
-                .filter(Player::isOp)
-                .forEach(player -> player.sendMessage(message));
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player != null && player.isOp()) {
+                player.sendMessage(message);
+            }
+        }
     }
 
     // ─── スケジューリング ────────────────────────────────────
@@ -229,7 +233,7 @@ public final class ReleaseUpdateNotifier {
         return plugin.getPluginMeta().getVersion();
     }
 
-    static boolean isNewerVersion(String candidate, String current) {
+    static boolean isNewerVersion(@Nullable String candidate, @Nullable String current) {
         ParsedVersion candidateVersion = ParsedVersion.parse(candidate);
         ParsedVersion currentVersion = ParsedVersion.parse(current);
         return candidateVersion != null
@@ -271,7 +275,7 @@ public final class ReleaseUpdateNotifier {
     private record ParsedVersion(int major, int minor, int patch, ReleaseStage stage, int revision)
             implements Comparable<ParsedVersion> {
 
-        private static ParsedVersion parse(String value) {
+        private static @Nullable ParsedVersion parse(@Nullable String value) {
             if (value == null) {
                 return null;
             }
@@ -310,7 +314,7 @@ public final class ReleaseUpdateNotifier {
             return result == 0 ? Integer.compare(revision, other.revision) : result;
         }
 
-        private static int parseNumber(String value) {
+        private static int parseNumber(@Nullable String value) {
             return value == null ? 0 : Integer.parseInt(value);
         }
 

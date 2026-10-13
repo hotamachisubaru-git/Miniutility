@@ -18,7 +18,8 @@ class CreeperExplosionListenerTest {
     @Test
     void protectedCreeperOnlyRemovesBlocksAndLeavesExplosionActive() {
         EntityExplodeEvent event = mock(EntityExplodeEvent.class);
-        List<Block> blocks = new ArrayList<>(List.of(mock(Block.class)));
+        List<Block> blocks = new ArrayList<>();
+        blocks.add(mock(Block.class));
         when(event.getEntity()).thenReturn(mock(Creeper.class));
         when(event.blockList()).thenReturn(blocks);
 
@@ -32,7 +33,8 @@ class CreeperExplosionListenerTest {
     @Test
     void disabledProtectionAllowsCreeperBlocksAndToggleRestoresProtection() {
         EntityExplodeEvent event = mock(EntityExplodeEvent.class);
-        List<Block> blocks = new ArrayList<>(List.of(mock(Block.class)));
+        List<Block> blocks = new ArrayList<>();
+        blocks.add(mock(Block.class));
         when(event.getEntity()).thenReturn(mock(Creeper.class));
         when(event.blockList()).thenReturn(blocks);
         CreeperBlockProtection service = new CreeperBlockProtection(false);

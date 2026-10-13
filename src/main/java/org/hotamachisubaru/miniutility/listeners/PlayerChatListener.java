@@ -39,18 +39,18 @@ public final class PlayerChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAsyncChat(AsyncChatEvent event) {
-        Player player = event.getPlayer();
+        Player player = Objects.requireNonNull(event.getPlayer(), "chat player");
         UUID playerId = player.getUniqueId();
         InputSession session = pendingInputs.get(playerId);
         if (session != null) {
-            String input = LegacyTextFormatter.plain(event.message()).trim();
+            String input = Objects.requireNonNull(LegacyTextFormatter.plain(event.message()).trim());
             event.setCancelled(true);
             nicknameManager.runOnServerThread(() -> handlePendingInput(player, playerId, session, input));
             return;
         }
-        NicknameChatRenderer renderer = nicknameManager.getCachedDisplayNameComponent(playerId)
-                .map(NicknameChatRenderer::new)
-                .orElseGet(NicknameChatRenderer::new);
+        var cachedDisplayName = nicknameManager.getCachedDisplayNameComponent(playerId).orElse(null);
+        NicknameChatRenderer renderer = cachedDisplayName == null
+                ? new NicknameChatRenderer() : new NicknameChatRenderer(cachedDisplayName);
         event.renderer(ChatRenderer.viewerUnaware(renderer));
     }
 
@@ -95,7 +95,8 @@ public final class PlayerChatListener implements Listener {
         if (!player.isOnline() || pendingInputs.get(playerId) != session) {
             return;
         }
-        inputDispatcher.handle(player, session.state(), input, action -> {
+        inputDispatcher.handle(Objects.requireNonNull(player), Objects.requireNonNull(session.state()),
+                Objects.requireNonNull(input), action -> {
             if (pendingInputs.get(playerId) == session && player.isOnline()) {
                 action.run();
                 pendingInputs.remove(playerId, session);

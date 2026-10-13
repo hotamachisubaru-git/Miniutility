@@ -6,8 +6,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.hotamachisubaru.miniutility.death.PlayerDeathLocations;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,12 +27,17 @@ class PlayerDeathListenerTest {
         PlayerDeathEvent event = mock(PlayerDeathEvent.class);
         when(event.getEntity()).thenReturn(player);
         PlayerDeathLocations store = mock(PlayerDeathLocations.class);
+        List<Location> recordedLocations = new ArrayList<>();
+        doAnswer(invocation -> {
+            recordedLocations.add(invocation.getArgument(1, Location.class));
+            return null;
+        }).<PlayerDeathLocations>when(store).record(eq(playerId), any(Location.class));
 
         new PlayerDeathListener(store).onPlayerDeath(event);
 
-        ArgumentCaptor<Location> captured = ArgumentCaptor.forClass(Location.class);
-        verify(store).record(eq(playerId), captured.capture());
-        Location saved = captured.getValue();
+        verify(store).record(eq(playerId), any(Location.class));
+        assertEquals(1, recordedLocations.size());
+        Location saved = recordedLocations.getFirst();
         assertSame(world, saved.getWorld());
         assertEquals(-2, saved.getX());
         assertEquals(-5, saved.getY());

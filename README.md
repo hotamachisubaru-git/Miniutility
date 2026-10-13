@@ -24,6 +24,8 @@ mvn -B -ntp clean verify
 
 2026-10-13にJava 25とPaper 26.3 stable build 178で実サーバーを起動し、Miniutility 26.3の有効化、3コマンドの登録、`/load`によるSQLiteデータの再読み込み、コンソールからのプレイヤー専用コマンド拒否を確認しました。`stop`によるプラグイン終了・ワールド保存・正常終了と、SQLiteの`integrity_check: ok`も確認済みです。Windows PowerShell 5.1で起動スクリプトの事前確認も通過しています。回帰テスト103件はすべて成功しました。Minecraftクライアントによる全GUI操作は未検証です。
 
+同日、VS CodeのJava拡張 `redhat.java 1.56.0` と同じECJ・実際のプロジェクト設定で、本体30ファイルとテスト19ファイルのnull解析も実行し、エラー・警告・情報診断がすべて0件であることを確認しました。API実装に必要な範囲だけ `@NullMarked` でnull契約をまとめて指定し、`@NonNull`の追加や警告の無効化は行っていません。`pom.xml` の「build file has been changed」通知が残る場合は、VS Codeの `Java: Reload Projects` でプロジェクト設定を再読み込みしてください。
+
 ## サーバーへの導入・起動
 
 1. サーバーを停止し、既存のワールド・プラグイン設定をバックアップします。

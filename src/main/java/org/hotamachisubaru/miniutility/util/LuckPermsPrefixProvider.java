@@ -48,9 +48,10 @@ public final class LuckPermsPrefixProvider {
 
     private static final class Bridge {
         private static Supplier<String> capture(Player player) {
+            Player currentPlayer = Objects.requireNonNull(player, "player");
             var adapter = net.luckperms.api.LuckPermsProvider.get().getPlayerAdapter(Player.class);
-            var cachedData = adapter.getUser(player).getCachedData();
-            var queryOptions = adapter.getQueryOptions(player);
+            var cachedData = adapter.getUser(currentPlayer).getCachedData();
+            var queryOptions = adapter.getQueryOptions(currentPlayer);
             return () -> {
                 try {
                     return Objects.requireNonNullElse(cachedData.getMetaData(queryOptions).getPrefix(), "");

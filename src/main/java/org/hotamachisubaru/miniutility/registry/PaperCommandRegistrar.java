@@ -2,6 +2,7 @@ package org.hotamachisubaru.miniutility.registry;
 
 import io.papermc.paper.command.brigadier.BasicCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -33,10 +34,14 @@ public final class PaperCommandRegistrar {
             if (!DESCRIPTIONS.containsKey(name)) {
                 throw new IllegalArgumentException("未定義のコマンド: " + name);
             }
-            return Map.entry(name, Objects.requireNonNull(commandFactory.apply(name), "command"));
+            return new CommandBinding(name, Objects.requireNonNull(commandFactory.apply(name), "command"));
         }).toList();
         for (var command : commands) {
-            plugin.registerCommand(command.getKey(), DESCRIPTIONS.get(command.getKey()), command.getValue());
+            plugin.registerCommand(command.name(), DESCRIPTIONS.get(command.name()), command.command());
         }
+    }
+
+    @NullMarked
+    private record CommandBinding(String name, BasicCommand command) {
     }
 }

@@ -13,9 +13,11 @@ import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 import org.hotamachisubaru.miniutility.util.LuckPermsPrefixProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,7 +53,8 @@ final class PlayerNicknameServiceTest {
             assertThrows(IllegalStateException.class, () -> fixture.manager.removeNickname(fixture.player));
 
             assertEquals("Stored", fixture.manager.getDisplayName(fixture.player));
-            assertEquals("Stored", LegacyTextFormatter.plain(fixture.manager.getCachedDisplayNameComponent(fixture.owner).orElseThrow()));
+            assertEquals("Stored", LegacyTextFormatter.plain(Objects.requireNonNull(
+                    fixture.manager.getCachedDisplayNameComponent(fixture.owner).orElseThrow())));
         }
     }
 
@@ -66,8 +69,8 @@ final class PlayerNicknameServiceTest {
             fixture.prefix.set("&b[Member]");
             Component second = fixture.manager.getCachedDisplayNameComponent(fixture.owner).orElseThrow();
 
-            assertEquals("[VIP] Alice", LegacyTextFormatter.plain(first));
-            assertEquals("[Member] Alice", LegacyTextFormatter.plain(second));
+            assertEquals("[VIP] Alice", LegacyTextFormatter.plain(Objects.requireNonNull(first)));
+            assertEquals("[Member] Alice", LegacyTextFormatter.plain(Objects.requireNonNull(second)));
             verifyNoInteractions(fixture.player, fixture.plugin);
             fixture.manager.forgetPlayer(fixture.owner);
             assertTrue(fixture.manager.getCachedDisplayNameComponent(fixture.owner).isEmpty());
@@ -126,8 +129,8 @@ final class PlayerNicknameServiceTest {
         private final AtomicBoolean enabled = new AtomicBoolean(true);
         private final AtomicReference<String> prefix = new AtomicReference<>("");
         private final AtomicReference<Consumer<UUID>> refresh = new AtomicReference<>();
-        private final MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
-        private final MockedStatic<LuckPermsPrefixProvider> luckPerms = mockStatic(LuckPermsPrefixProvider.class);
+        private final MockedStatic<? extends @Nullable Bukkit> bukkit = mockStatic(Bukkit.class);
+        private final MockedStatic<? extends @Nullable LuckPermsPrefixProvider> luckPerms = mockStatic(LuckPermsPrefixProvider.class);
         private final PlayerNicknameService manager;
 
         private Fixture() {

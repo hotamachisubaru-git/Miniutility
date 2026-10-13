@@ -110,8 +110,7 @@ public final class MiniutilityInitializer {
                 chatListener,
                 creeperProtectionListener,
                 trashBoxSessionStore,
-                guiActionService,
-                creeperProtectionService
+                guiActionService
         );
     }
 
@@ -177,8 +176,7 @@ public final class MiniutilityInitializer {
             PlayerChatListener chatListener,
             CreeperExplosionListener creeperProtectionListener,
             TrashInventorySessions trashBoxSessionStore,
-            UtilityMenuActions guiActionService,
-            CreeperBlockProtection creeperProtectionService
+            UtilityMenuActions guiActionService
     ) {
     }
 }

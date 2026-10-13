@@ -9,10 +9,11 @@ import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
 import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ class PlayerChatListenerTest {
     void initialize() {
         when(player.getUniqueId()).thenReturn(playerId);
         when(player.isOnline()).thenReturn(true);
-        when(manager.getCachedDisplayNameComponent(playerId)).thenReturn(Optional.of(Component.text("Alice")));
+        when(manager.getCachedDisplayNameComponent(playerId)).thenReturn(Optional.<Component>of(Component.text("Alice")));
         doAnswer(invocation -> {
             Runnable action = invocation.getArgument(0);
             if (onServerThread) {
@@ -50,10 +51,11 @@ class PlayerChatListenerTest {
     void ordinaryChatUsesOnlyCachedNameAndPreservesTheMessage() {
         AsyncChatEvent event = chat("hello");
         listener.onAsyncChat(event);
-        var renderer = ArgumentCaptor.forClass(ChatRenderer.class);
-        verify(event).renderer(renderer.capture());
-        assertEquals("Alice » hello", LegacyTextFormatter.plain(renderer.getValue().render(
-                player, Component.text("Original"), event.message(), player)));
+        ChatRenderer renderer = assignedRenderer(event);
+        assertNotNull(renderer);
+        Player source = Objects.requireNonNull(player);
+        assertEquals("Alice » hello", LegacyTextFormatter.plain(renderer.render(
+                source, Component.text("Original"), event.message(), source)));
         verify(manager, never()).getDisplayNameComponent(any(Player.class));
         verify(event, never()).setCancelled(true);
         assertTrue(serverTasks.isEmpty());
@@ -71,7 +73,7 @@ class PlayerChatListenerTest {
         AsyncChatEvent next = chat("ordinary");
         listener.onAsyncChat(next);
         verify(next, never()).setCancelled(true);
-        verify(next).renderer(any(ChatRenderer.class));
+        assertNotNull(assignedRenderer(next));
     }
 
     @Test
@@ -132,6 +134,7 @@ class PlayerChatListenerTest {
         verify(player, never()).giveExpLevels(anyInt());
     }
 
+    @NullMarked
     private AsyncChatEvent chat(String message) {
         AsyncChatEvent event = mock(AsyncChatEvent.class);
         when(event.getPlayer()).thenReturn(player);
@@ -148,5 +151,14 @@ class PlayerChatListenerTest {
         } finally {
             onServerThread = false;
         }
+    }
+
+    private static ChatRenderer assignedRenderer(AsyncChatEvent event) {
+        var rendererCalls = mockingDetails(event).getInvocations().stream()
+                .filter(invocation -> invocation.getMethod().getName().equals("renderer")
+                        && invocation.getArguments().length == 1)
+                .toList();
+        assertEquals(1, rendererCalls.size());
+        return (ChatRenderer) rendererCalls.getFirst().getArguments()[0];
     }
 }

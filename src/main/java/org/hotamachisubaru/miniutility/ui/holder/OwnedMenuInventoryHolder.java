@@ -3,6 +3,7 @@ package org.hotamachisubaru.miniutility.ui.holder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.UUID;
 import java.util.Objects;
@@ -42,10 +43,12 @@ public final class OwnedMenuInventoryHolder implements InventoryHolder {
     }
 
     @Override
+    @NullMarked
     public Inventory getInventory() {
-        if (inventory == null) {
+        Inventory boundInventory = inventory;
+        if (boundInventory == null) {
             throw new IllegalStateException("GUI inventory is not bound.");
         }
-        return inventory;
+        return boundInventory;
     }
 }

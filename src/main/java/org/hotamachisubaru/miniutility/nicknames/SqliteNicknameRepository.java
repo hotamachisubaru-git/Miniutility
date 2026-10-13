@@ -60,7 +60,10 @@ public final class SqliteNicknameRepository {
             throw new IllegalStateException("ニックネームDBが存在せず、database.autoCreate が無効です。");
         }
         try {
-            Files.createDirectories(databasePath.getParent());
+            Path parentDirectory = databasePath.getParent();
+            if (parentDirectory != null) {
+                Files.createDirectories(parentDirectory);
+            }
             try (Connection connection = openConnection(); Statement statement = connection.createStatement()) {
                 statement.executeUpdate(CREATE_TABLE);
             }
@@ -122,7 +125,7 @@ public final class SqliteNicknameRepository {
         }
     }
 
-    private void saveBatch(Connection connection, Map<UUID, String> nicknames) throws SQLException {
+    private static void saveBatch(Connection connection, Map<UUID, String> nicknames) throws SQLException {
         connection.setAutoCommit(false);
         try (PreparedStatement statement = connection.prepareStatement(UPSERT)) {
             for (var entry : nicknames.entrySet()) {

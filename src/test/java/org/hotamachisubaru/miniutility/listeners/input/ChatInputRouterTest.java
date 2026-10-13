@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -34,8 +34,9 @@ class ChatInputRouterTest {
     void positiveExperienceChangeCannotOverflowTheCurrentLevel() {
         Player player = mock(Player.class);
         when(player.getLevel()).thenReturn(Integer.MAX_VALUE - 3);
-        var router = new ChatInputRouter(mock(PlayerNicknameService.class), Runnable::run, (target, message) -> fail());
-        router.handle(player, ChatInputMode.EXPERIENCE, Integer.toString(Integer.MAX_VALUE));
+        var router = new ChatInputRouter(mock(PlayerNicknameService.class), action -> Objects.requireNonNull(action).run(),
+                (target, message) -> fail());
+        router.handle(player, ChatInputMode.EXPERIENCE, Objects.requireNonNull(Integer.toString(Integer.MAX_VALUE)));
         verify(player).giveExpLevels(3);
     }
 
@@ -44,7 +45,8 @@ class ChatInputRouterTest {
         Player player = mock(Player.class);
         List<ChatInputRouter.InputMessage> errors = new ArrayList<>();
         AtomicInteger completions = new AtomicInteger();
-        var router = new ChatInputRouter(mock(PlayerNicknameService.class), Runnable::run, (target, message) -> errors.add(message));
+        var router = new ChatInputRouter(mock(PlayerNicknameService.class), action -> Objects.requireNonNull(action).run(),
+                (target, message) -> errors.add(message));
         router.handle(player, ChatInputMode.EXPERIENCE, "2147483648", action -> completions.incrementAndGet());
         assertEquals(0, completions.get());
         assertEquals(1, errors.size());
@@ -57,7 +59,8 @@ class ChatInputRouterTest {
         Player player = mock(Player.class);
         PlayerNicknameService manager = mock(PlayerNicknameService.class);
         List<Runnable> completions = new ArrayList<>();
-        var router = new ChatInputRouter(manager, Runnable::run, (target, message) -> fail());
+        var router = new ChatInputRouter(manager, action -> Objects.requireNonNull(action).run(),
+                (target, message) -> fail());
         router.handle(player, ChatInputMode.COLORED_NICKNAME, "&bほしまち", completions::add);
         verifyNoInteractions(manager, player);
         completions.getFirst().run();

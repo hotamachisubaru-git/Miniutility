@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.hotamachisubaru.miniutility.MiniutilityPlugin;
 import org.hotamachisubaru.miniutility.ui.UtilityMenuFactory;
 import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Collection;
@@ -35,7 +36,7 @@ public final class UtilityCommandHandlers {
         if (!List.of("menu", "load", "prefixtoggle").contains(name)) {
             throw new IllegalArgumentException("Unknown Miniutility command: " + commandName);
         }
-        return new NamedCommand(name);
+        return new NamedCommand(Objects.requireNonNull(name, "normalized commandName"));
     }
 
     private void openMenu(CommandSender sender) {
@@ -102,6 +103,7 @@ public final class UtilityCommandHandlers {
         };
     }
 
+    @NullMarked
     private final class NamedCommand implements BasicCommand {
 
         private final String name;
@@ -129,10 +131,10 @@ public final class UtilityCommandHandlers {
         @Override
         public Collection<String> suggest(CommandSourceStack source, String[] arguments) {
             if (!canUse(source.getSender()) || !name.equals("prefixtoggle") || arguments.length > 1) {
-                return List.of();
+                return Objects.requireNonNull(List.of());
             }
             String prefix = arguments.length == 0 ? "" : arguments[0].toLowerCase(Locale.ROOT);
-            return PREFIX_OPTIONS.stream().filter(option -> option.startsWith(prefix)).toList();
+            return Objects.requireNonNull(PREFIX_OPTIONS.stream().filter(option -> option.startsWith(prefix)).toList());
         }
 
         @Override

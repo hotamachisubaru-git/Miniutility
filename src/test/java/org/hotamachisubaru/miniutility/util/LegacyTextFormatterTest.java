@@ -5,6 +5,8 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class LegacyTextFormatterTest {
@@ -16,7 +18,7 @@ class LegacyTextFormatterTest {
         assertEquals("Alice_1", LegacyTextFormatter.plain(restored));
         assertEquals(LegacyTextFormatter.legacy("&aAlice§l_1&r").compact(), restored);
         assertEquals(NamedTextColor.GREEN, restored.color());
-        assertEquals("_1", LegacyTextFormatter.plain(restored.children().getLast()));
+        assertEquals("_1", LegacyTextFormatter.plain(Objects.requireNonNull(restored.children().getLast())));
         assertEquals(TextDecoration.State.TRUE, restored.children().getLast().decoration(TextDecoration.BOLD));
         assertTrue(stored.contains("§a"));
         assertTrue(stored.contains("§l"));

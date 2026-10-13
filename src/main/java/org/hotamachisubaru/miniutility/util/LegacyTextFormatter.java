@@ -5,10 +5,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Objects;
 
 /** Shared immutable Adventure serializers used by both server and chat threads. */
+@NullMarked
 public final class LegacyTextFormatter {
 
     private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
@@ -57,10 +59,10 @@ public final class LegacyTextFormatter {
     }
 
     private static String normalizeLegacyMarkers(@Nullable String text) {
-        return orEmpty(text).replace('§', '&');
+        return Objects.requireNonNull(orEmpty(text).replace('§', '&'));
     }
 
     private static String orEmpty(@Nullable String text) {
-        return Objects.requireNonNullElse(text, "");
+        return text == null ? "" : text;
     }
 }

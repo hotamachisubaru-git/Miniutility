@@ -77,15 +77,24 @@ public final class UtilityMenuListener implements Listener {
         }
 
         int topSize = topInventory.getSize();
-        boolean affectsTopInventory = event.getRawSlots().stream().anyMatch(slot -> slot >= 0 && slot < topSize);
-        if (!affectsTopInventory) {
-            return;
+        boolean affectsTopInventory = false;
+        for (Integer rawSlot : event.getRawSlots()) {
+            if (rawSlot == null) {
+                event.setCancelled(true);
+                return;
+            }
+            if (rawSlot < 0 || rawSlot >= topSize) {
+                continue;
+            }
+            affectsTopInventory = true;
+            if (!guiHolder.getType().isContentSlot(rawSlot)) {
+                event.setCancelled(true);
+                return;
+            }
         }
-
-        boolean isValidTrashDrag = event.getRawSlots().stream()
-                .filter(slot -> slot >= 0 && slot < topSize)
-                .allMatch(guiHolder.getType()::isContentSlot);
-        event.setCancelled(!isValidTrashDrag);
+        if (affectsTopInventory) {
+            event.setCancelled(false);
+        }
     }
 
     @EventHandler

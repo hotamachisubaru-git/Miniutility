@@ -2,8 +2,10 @@ package org.hotamachisubaru.miniutility.listeners.input;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.hotamachisubaru.miniutility.nicknames.NicknameInputValidator;
+import org.jspecify.annotations.NullMarked;
 
 /** The validation and retry message for one chat-input mode. */
+@NullMarked
 public enum ChatInputMode {
     NICKNAME("無効なニックネームです。1〜16文字、記号は _- のみ使用可。空白不可。"),
     COLORED_NICKNAME("無効なニックネームです。1〜16文字、記号は _- のみ、空白不可。"),

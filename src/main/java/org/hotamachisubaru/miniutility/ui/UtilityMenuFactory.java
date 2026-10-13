@@ -7,6 +7,7 @@ import org.hotamachisubaru.miniutility.ui.action.MenuButtonItemFactory;
 import org.hotamachisubaru.miniutility.ui.holder.OwnedMenuInventoryHolder;
 import org.hotamachisubaru.miniutility.ui.holder.UtilityMenuKind;
 import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
@@ -17,6 +18,7 @@ import java.util.UUID;
  * <p>
  * 各メソッドが固有のGUIタイプを生成し、{@link OwnedMenuInventoryHolder} にバインドします。
  */
+@NullMarked
 public final class UtilityMenuFactory {
 
     private UtilityMenuFactory() {
@@ -40,7 +42,7 @@ public final class UtilityMenuFactory {
      * ゴミ箱のインベントリを作成します。
      */
     public static Inventory createTrashBox(UUID owner) {
-        return createTrashBox(owner, new ItemStack[0]);
+        return createTrashBox(owner, new @Nullable ItemStack[0]);
     }
 
     /**
@@ -65,7 +67,9 @@ public final class UtilityMenuFactory {
 
     private static Inventory createInventory(UtilityMenuKind type, UUID owner) {
         OwnedMenuInventoryHolder holder = new OwnedMenuInventoryHolder(type, owner);
-        Inventory inventory = Bukkit.createInventory(holder, type.getSize(), LegacyTextFormatter.text(type.getTitle()));
+        Inventory inventory = Objects.requireNonNull(Bukkit.createInventory(
+                holder, type.getSize(), LegacyTextFormatter.text(type.getTitle())
+        ));
         holder.bind(inventory);
         type.getButtons().forEach((slot, button) -> inventory.setItem(slot, MenuButtonItemFactory.createGuiItem(button)));
         return inventory;

@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.hotamachisubaru.miniutility.ui.holder.OwnedMenuInventoryHolder;
 import org.hotamachisubaru.miniutility.ui.holder.UtilityMenuKind;
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ final class TrashInventorySessionsTest {
         TrashInventorySessions store = new TrashInventorySessions();
 
         store.save(owner, inventory);
-        ItemStack[] snapshot = store.remove(owner);
+        @Nullable ItemStack[] snapshot = store.remove(owner);
 
         assertEquals(53, snapshot.length);
         assertSame(copy, snapshot[0]);

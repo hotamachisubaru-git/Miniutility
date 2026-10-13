@@ -11,30 +11,30 @@ import org.hotamachisubaru.miniutility.MiniutilityPlugin;
 import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
 import org.hotamachisubaru.miniutility.ui.UtilityMenuFactory;
 import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@NullMarked
 class UtilityCommandHandlersTest {
 
-    private MiniutilityPlugin plugin;
-    private PlayerNicknameService manager;
-    private UtilityCommandHandlers commands;
+    private final MiniutilityPlugin plugin = mock(MiniutilityPlugin.class);
+    private final PlayerNicknameService manager = mock(PlayerNicknameService.class);
+    private final UtilityCommandHandlers commands = new UtilityCommandHandlers(plugin);
 
     @BeforeEach
     void setUp() {
-        plugin = mock(MiniutilityPlugin.class);
-        manager = mock(PlayerNicknameService.class);
         when(plugin.getNicknameManager()).thenReturn(manager);
         when(plugin.getLogger()).thenReturn(Logger.getAnonymousLogger());
-        commands = new UtilityCommandHandlers(plugin);
     }
 
     @Test
@@ -56,7 +56,7 @@ class UtilityCommandHandlersTest {
     void menuOpensTheSendersInventoryAndConsoleCannotOperateTheExecutor() throws CommandSyntaxException {
         BasicCommand command = commands.commandAdapter("menu");
         Player player = mock(Player.class);
-        UUID playerId = UUID.randomUUID();
+        UUID playerId = Objects.requireNonNull(UUID.randomUUID());
         when(player.getUniqueId()).thenReturn(playerId);
         Inventory inventory = mock(Inventory.class);
         try (var factory = mockStatic(UtilityMenuFactory.class)) {
@@ -77,7 +77,7 @@ class UtilityCommandHandlersTest {
     void prefixToggleOnOffAndInvalidArgumentsKeepExistingBehavior() throws CommandSyntaxException {
         BasicCommand command = commands.commandAdapter("prefixtoggle");
         Player player = mock(Player.class);
-        UUID playerId = UUID.randomUUID();
+        UUID playerId = Objects.requireNonNull(UUID.randomUUID());
         when(player.getUniqueId()).thenReturn(playerId);
         when(manager.togglePrefix(playerId)).thenReturn(true);
         CommandSourceStack source = source(player);
@@ -111,7 +111,7 @@ class UtilityCommandHandlersTest {
     void reloadFailureReportsFailureAndNeverClaimsSuccess() throws CommandSyntaxException {
         CommandSender sender = mock(CommandSender.class);
         when(sender.hasPermission("miniutility.load")).thenReturn(true);
-        doThrow(new IllegalStateException("Database unavailable")).when(manager).reload();
+        doThrow(new IllegalStateException("Database unavailable")).<PlayerNicknameService>when(manager).reload();
 
         commands.commandAdapter("load").execute(source(sender), new String[0]);
 
@@ -125,8 +125,8 @@ class UtilityCommandHandlersTest {
     }
 
     private static String message(CommandSender sender) {
-        ArgumentCaptor<Component> captured = ArgumentCaptor.forClass(Component.class);
+        var captured = ArgumentCaptor.forClass(Component.class);
         verify(sender).sendMessage(captured.capture());
-        return LegacyTextFormatter.plain(captured.getValue());
+        return LegacyTextFormatter.plain(Objects.requireNonNull(captured.getValue()));
     }
 }

@@ -19,10 +19,12 @@ import org.hotamachisubaru.miniutility.ui.holder.OwnedMenuInventoryHolder;
 import org.hotamachisubaru.miniutility.ui.holder.UtilityMenuKind;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -38,7 +40,7 @@ final class UtilityMenuActionsTest {
             fixture.actions.scheduleClick(fixture.player, fixture.inventory, 4);
 
             assertEquals(1, fixture.tasks.size());
-            verify(fixture.player, never()).setGameMode(any());
+            verifyNoGameModeChanges(fixture.player);
             fixture.runNextTask();
 
             verify(fixture.player).setGameMode(GameMode.CREATIVE);
@@ -53,13 +55,13 @@ final class UtilityMenuActionsTest {
             Inventory replacement = mock(Inventory.class);
             when(fixture.view.getTopInventory()).thenReturn(replacement);
             fixture.runNextTask();
-            verify(fixture.player, never()).setGameMode(any());
+            verifyNoGameModeChanges(fixture.player);
 
             when(fixture.view.getTopInventory()).thenReturn(fixture.inventory);
             fixture.actions.scheduleClick(fixture.player, fixture.inventory, 4);
             when(fixture.player.isOnline()).thenReturn(false);
             fixture.runNextTask();
-            verify(fixture.player, never()).setGameMode(any());
+            verifyNoGameModeChanges(fixture.player);
         }
     }
 
@@ -77,18 +79,19 @@ final class UtilityMenuActionsTest {
 
     @Test
     void cancellingTrashConfirmationRestoresTheSavedContentsBeforeClosingTheOldView() {
-        try (Fixture fixture = new Fixture(); MockedStatic<UtilityMenuFactory> factory = mockStatic(UtilityMenuFactory.class)) {
-            ItemStack[] snapshot = {mock(ItemStack.class)};
+        try (Fixture fixture = new Fixture(); var factory = mockStatic(UtilityMenuFactory.class)) {
+            @Nullable ItemStack[] snapshot = {mock(ItemStack.class)};
             Inventory restored = mock(Inventory.class);
+            UUID owner = Objects.requireNonNull(fixture.owner);
             when(fixture.sessions.remove(fixture.owner)).thenReturn(snapshot);
-            factory.when(() -> UtilityMenuFactory.createTrashBox(fixture.owner, snapshot)).thenReturn(restored);
+            factory.when(() -> UtilityMenuFactory.createTrashBox(owner, snapshot)).thenReturn(restored);
 
             fixture.actions.handleTrashConfirmClick(fixture.player, item(Material.RED_WOOL));
 
             var ordered = inOrder(fixture.sessions, fixture.player);
             ordered.verify(fixture.sessions).remove(fixture.owner);
             ordered.verify(fixture.player).openInventory(restored);
-            factory.verify(() -> UtilityMenuFactory.createTrashBox(fixture.owner, snapshot));
+            factory.verify(() -> UtilityMenuFactory.createTrashBox(owner, snapshot));
         }
     }
 
@@ -117,6 +120,12 @@ final class UtilityMenuActionsTest {
         return item;
     }
 
+    private static void verifyNoGameModeChanges(Player player) {
+        for (GameMode mode : GameMode.values()) {
+            verify(player, never()).setGameMode(Objects.requireNonNull(mode));
+        }
+    }
+
     private static final class Fixture implements AutoCloseable {
         private final UUID owner = UUID.randomUUID();
         private final Player player = mock(Player.class);
@@ -127,7 +136,7 @@ final class UtilityMenuActionsTest {
         private final PlayerDeathLocations deaths = mock(PlayerDeathLocations.class);
         private final TrashInventorySessions sessions = mock(TrashInventorySessions.class);
         private final List<Runnable> tasks = new ArrayList<>();
-        private final MockedStatic<Bukkit> bukkit;
+        private final MockedStatic<? extends @Nullable Bukkit> bukkit;
         private final UtilityMenuActions actions;
 
         private Fixture() {

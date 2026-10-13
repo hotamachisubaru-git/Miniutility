@@ -4,12 +4,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.entity.Player;
 import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
 import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /** Validates input on the server thread before completing its owning input session. */
+@NullMarked
 public final class ChatInputRouter {
 
     private final PlayerNicknameService nicknameManager;
@@ -28,7 +30,7 @@ public final class ChatInputRouter {
 
     /** Retains the standalone API; the listener uses the session-aware overload. */
     public boolean handle(Player player, ChatInputMode state, String input) {
-        return handle(player, state, input, Runnable::run);
+        return handle(player, state, input, action -> Objects.requireNonNull(action).run());
     }
 
     /** An invalid value remains pending. A valid value completes through the session owner. */
