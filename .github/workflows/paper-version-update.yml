@@ -60,7 +60,7 @@ jobs:
         run: mvn -B -ntp verify
 
       - name: PR を作成
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/paper-version-update
           delete-branch: true
