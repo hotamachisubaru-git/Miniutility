@@ -6,12 +6,12 @@ on:
       minecraft_version:
         description: "更新先の Minecraft/Paper バージョン"
         required: false
-        default: "26.2"
+        default: "26.3"
       channel:
         description: "追従するPaperビルドのチャンネル"
         required: false
         type: choice
-        default: "ALPHA"
+        default: "STABLE"
         options:
           - ALPHA
           - BETA
@@ -38,14 +38,17 @@ jobs:
 
       - name: Paper バージョンを更新
         shell: pwsh
+        env:
+          INPUT_MINECRAFT_VERSION: ${{ inputs.minecraft_version }}
+          INPUT_CHANNEL: ${{ inputs.channel }}
         run: |
-          $minecraftVersion = "${{ inputs.minecraft_version }}"
+          $minecraftVersion = $env:INPUT_MINECRAFT_VERSION
           if ([string]::IsNullOrWhiteSpace($minecraftVersion)) {
-            $minecraftVersion = "26.2"
+            $minecraftVersion = "26.3"
           }
-          $channel = "${{ inputs.channel }}"
+          $channel = $env:INPUT_CHANNEL
           if ([string]::IsNullOrWhiteSpace($channel)) {
-            $channel = "ALPHA"
+            $channel = "STABLE"
           }
 
           ./scripts/update-paper-version.ps1 `
@@ -54,7 +57,7 @@ jobs:
             -UpdateProjectVersion
 
       - name: Maven 検証
-        run: mvn -B -DskipTests verify
+        run: mvn -B -ntp verify
 
       - name: PR を作成
         uses: peter-evans/create-pull-request@v7
@@ -64,7 +67,7 @@ jobs:
           title: "Paper バージョンを更新"
           commit-message: "Paper バージョンを更新"
           body: |
-            Paper 26.2 の指定チャンネルのビルドに追従する自動更新です。
+            Paper 26.3 の指定チャンネル（既定は安定版）に追従する自動更新です。
 
             この PR では `minecraft.version` と `paper.version` を更新し、Maven 検証を実行します。
           labels: dependencies,maven

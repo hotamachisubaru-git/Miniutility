@@ -1,26 +1,76 @@
-> ネイティブ対応
-> Paper 26.2 Alpha版
+> Paper 26.3 安定版にネイティブ対応 / Java 25
 
-# こちらは Paper 26.2 向けのブランチです
+# Miniutility — Paper 26.3
 
-- 開発依存は `io.papermc.paper:paper-api` を使用し、正確な版は `pom.xml` の `paper.version` で管理します。
-- Adventure は `net.kyori:adventure-bom:5.1.1` で安定版を固定します。
-- Paper 26.2 Alpha版のバージョン命名は `26.2.build.N-alpha` 形式です。
-- 取得先は従来のスナップショットリポジトリではなく `https://repo.papermc.io/repository/maven-public/` です。
-- 開発とビルドには Java 25 が必要です。
-- 通常の Paper サーバーを対象とし、Foliaには対応しません。
+死亡地点へのワープ、経験値・ゲームモードの操作、クリーパーのブロック破壊防止、エンダーチェスト、ゴミ箱、ニックネーム、どこでも作業台をメニューから利用できます。
+
+- 対象: **Paper 26.3 stable build 178**。依存APIは `26.3.build.178-stable` に固定しています。
+- 開発・実行には **Java 25以降**、ビルドにはMavenが必要です。
+- Adventure `5.2.0` と LuckPerms API `5.5` はサーバー側を利用し、SQLite JDBC `3.53.4.0` はJARに同梱します。
+- LuckPermsは任意です。未導入でも、プレフィックス以外の機能を利用できます。
+- 通常のPaperサーバーが対象です。Foliaには対応していません。
+- [Paper 26.3の公式更新内容](https://papermc.io/news/26-3/)と[Java・依存関係の設定](https://docs.papermc.io/paper/dev/project-setup/)を参照してください。
+
+## ビルドと検証
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-25.0.2.10-hotspot'
+mvn -B -ntp clean verify
+```
+
+`JAVA_HOME`は使用するJDK 25のインストール先に合わせてください。`java -version`が25でも、Mavenの`JAVA_HOME`が古い場合はビルドできません。`mvn -version`でも確認できます。
+
+成果物は `target/Miniutility-26.3.jar` です。検証ではGUIの画面切替、ゴミ箱、チャット入力、ニックネームとSQLite、死亡地点、クリーパー保護、コマンド、更新通知、終了処理の回帰テストを実行します。テスト・サーバー起動確認だけでは、Minecraftクライアントによる全GUI操作を検証したことにはなりません。
+
+## サーバーへの導入・起動
+
+1. サーバーを停止し、既存のワールド・プラグイン設定をバックアップします。
+2. `plugins` に `Miniutility-26.3.jar` を配置します。古いMiniutilityのJARは同時に置かないでください。
+3. Java 25以降でPaper 26.3を起動します。既存の `plugins/Miniutility/config.yml` と `nickname.db` は引き続き利用できます。
+
+今回のローカルセットアップ先は `H:\Paper-26.3` です。`paper-26.3-178.jar` に必要なファイルを展開し、`start.cmd`、`start-server.ps1`、基本設定とプラグインを配置します。`start.cmd`を実行すると、初期メモリ2GB・最大4GBで起動します。終了はコンソールの `stop` コマンドを使用してください。
+
+初回は[Minecraft EULA](https://www.minecraft.net/eula)を確認し、同意する場合のみ `eula.txt` を `eula=true` にしてください。起動スクリプトは同意済みか確認し、未同意の場合は起動を停止します。
+
+```powershell
+# 起動前のJava・ファイル・EULA確認（サーバーは起動しません）
+./scripts/start-paper-server.ps1 -ServerDirectory 'H:\Paper-26.3' -CheckOnly
+
+# メモリ設定を変えて起動する例
+./scripts/start-paper-server.ps1 -ServerDirectory 'H:\Paper-26.3' -MaximumMemoryGB 8
+```
+
+標準ポートは `25565`、`online-mode=true` です。ローカル接続先は `localhost:25565` です。LuckPermsによるプレフィックスが必要な場合は、対応するLuckPermsを別途導入してください。
+
+## コード構成と26.3対応
+
+全30コードファイルを役割に沿ったクラス名・ファイル名へ変更しました。パッケージと機能ごとの分割を維持しています。
+
+| 役割 | 主なクラス |
+| --- | --- |
+| 起動・終了 | `MiniutilityPlugin`、`MiniutilityInitializer`、`MiniutilityServices` |
+| コマンド・イベント登録 | `UtilityCommandHandlers`、`PaperCommandRegistrar`、`PluginListenerRegistrar` |
+| メニュー | `UtilityMenuFactory`、`UtilityMenuActions`、`UtilityMenuKind`、`OwnedMenuInventoryHolder` |
+| ボタン・ゴミ箱 | `MenuButtonSpec`、`UtilityMenuButton`、`MenuButtonItemFactory`、`TrashInventorySessions` |
+| チャット入力・表示 | `PlayerChatListener`、`ChatInputRouter`、`ChatInputMode`、`NicknameChatRenderer` |
+| ニックネーム・保存 | `PlayerNicknameService`、`SqliteNicknameRepository`、`LegacyNicknameImporter`、`NicknameInputValidator` |
+| 死亡地点・クリーパー | `PlayerDeathLocations`、`PlayerDeathListener`、`CreeperBlockProtection`、`CreeperExplosionListener` |
+| テキスト・更新通知 | `LegacyTextFormatter`、`LuckPermsPrefixProvider`、`ReleaseUpdateNotifier` |
+
+コマンドはPaperのBasicCommandで登録し、GUIからの画面切替はクリックイベントの次tickで実行します。チャット入力のプレイヤー操作はサーバースレッドに移し、古い入力セッションを再実行しません。死亡地点はワールドUUIDで保持して再読み込みに対応し、SQLiteへの一括書込みは失敗時にロールバックします。不要な `@NonNull` は使用していません。
 
 ## バージョン更新
 
 - `pom.xml` の `minecraft.version` が `plugin.yml` の `api-version` に反映されます。
 - `paper.version` はコンパイル対象の Paper API です。
-- Paper 26.2 のAlphaビルドへ追従する場合は、次のスクリプトを使用します。
+- Paper 26.3の最新安定ビルドへ追従する場合は、次のスクリプトを使用します。
 
 ```powershell
-./scripts/update-paper-version.ps1 -MinecraftVersion 26.2 -Channel ALPHA -UpdateProjectVersion
+./scripts/update-paper-version.ps1 -MinecraftVersion 26.3 -Channel STABLE -UpdateProjectVersion
 ```
 
-- `.github/workflows/paper-version-update.yml` から手動実行できます。週次でも同じ処理を実行し、差分がある場合は日本語タイトルと日本語コミットメッセージで PR を作成します。
+- 安定版ではプロジェクトバージョンを `26.3`、候補版では `26.3-beta.1` などとして更新します。
+- `.github/workflows/paper-version-update.yml` から手動実行できます。週次でも26.3のSTABLEを確認し、差分がある場合はテストを含むMaven検証後、日本語タイトルと日本語コミットメッセージでPRを作成します。
 
 ## ブランチ運用
 

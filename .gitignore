@@ -1,2 +1,6 @@
 target/
 dependency-reduced-pom.xml
+test-server/*
+server/*
+.gitignore
+todos.json

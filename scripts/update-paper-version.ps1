@@ -1,8 +1,10 @@
 param(
     [Parameter(Mandatory = $true)]
+    [ValidatePattern('^\d+\.\d+(?:\.\d+)?$')]
     [string] $MinecraftVersion,
 
-    [string] $Channel = "ALPHA",
+    [ValidateSet('STABLE', 'BETA', 'ALPHA')]
+    [string] $Channel = "STABLE",
 
     [switch] $UpdateProjectVersion,
 
@@ -15,7 +17,9 @@ $ErrorActionPreference = "Stop"
 
 $resolvedPomPath = Resolve-Path $PomPath
 $normalizedChannel = $Channel.ToUpperInvariant()
-$normalizedProjectVersionSuffix = if ([string]::IsNullOrWhiteSpace($ProjectVersionSuffix)) {
+$normalizedProjectVersionSuffix = if ($normalizedChannel -eq 'STABLE' -and [string]::IsNullOrWhiteSpace($ProjectVersionSuffix)) {
+    ''
+} elseif ([string]::IsNullOrWhiteSpace($ProjectVersionSuffix)) {
     "$($normalizedChannel.ToLowerInvariant()).1"
 } else {
     $ProjectVersionSuffix
@@ -76,7 +80,11 @@ Set-PomProperty -Document $pom -Properties $properties -Name "paper.version" -Va
 
 if ($UpdateProjectVersion) {
     $versionNode = $project.SelectSingleNode("m:version", $namespaceManager)
-    $versionNode.InnerText = "$MinecraftVersion-$normalizedProjectVersionSuffix"
+    $versionNode.InnerText = if ($normalizedProjectVersionSuffix) {
+        "$MinecraftVersion-$normalizedProjectVersionSuffix"
+    } else {
+        $MinecraftVersion
+    }
 }
 
 $writerSettings = [System.Xml.XmlWriterSettings]::new()

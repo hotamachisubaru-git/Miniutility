@@ -18,6 +18,4 @@ jobs:
           java-version: "25"
           cache: "maven"
       - name: Maven でビルド
-        run: mvn -B -DskipTests verify
-      - name: テストを実行
-        run: mvn -B test
+        run: mvn -B -ntp verify

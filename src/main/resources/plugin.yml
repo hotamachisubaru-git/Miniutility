@@ -1,22 +1,11 @@
 name: Miniutility
 version: '${project.version}'
-main: org.hotamachisubaru.miniutility.Miniutility
+main: org.hotamachisubaru.miniutility.MiniutilityPlugin
 author: hotamachisubaru
 load: POSTWORLD
 api-version: '${minecraft.version}'
 softdepend: [LuckPerms]
 description: 著作権 2024-2026 hotamachisubaru。すべての権利を保有します。
-commands:
-  menu:
-    description: 便利機能を開きます。
-    usage: /<command>
-  load:
-    description: データベースからニックネームをロードします。
-    usage: /<command>
-    permission: miniutility.load
-  prefixtoggle:
-    description: プレフィックス結合の有効無効を切り替えます。
-    usage: /<command> [on|off]
 permissions:
   miniutility.load:
     description: データベースからニックネームをロードします。
