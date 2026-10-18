@@ -6,7 +6,7 @@
 
 Minecraft 1.20.1〜26.3 のうち Fabric API の配布が存在する23版を、`versions.json` に固定しています。Minecraft の版ごとに別の JAR をビルドします。異なる版の JAR は流用しないでください。
 
-現在の移植はビルド検証中です。Actions の成功した対象版の成果物を利用してください。実ゲーム内の操作確認は別途必要です。
+[CI](https://github.com/hotamachisubaru-git/Miniutility/actions/runs/39091442514)で23版すべてのビルドと共通テストが成功しています。実ゲーム内の全GUI操作は未検証です。
 
 ## 導入
 
