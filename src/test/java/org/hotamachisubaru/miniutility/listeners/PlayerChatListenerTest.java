@@ -5,14 +5,12 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
-import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 

@@ -6,7 +6,6 @@ import org.bukkit.inventory.ItemStack;
 import org.hotamachisubaru.miniutility.ui.action.MenuButtonItemFactory;
 import org.hotamachisubaru.miniutility.ui.holder.OwnedMenuInventoryHolder;
 import org.hotamachisubaru.miniutility.ui.holder.UtilityMenuKind;
-import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 

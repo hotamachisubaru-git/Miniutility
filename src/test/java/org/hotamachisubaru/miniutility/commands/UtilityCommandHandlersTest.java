@@ -1,14 +1,12 @@
 package org.hotamachisubaru.miniutility.commands;
 
 import org.hotamachisubaru.miniutility.commands.UtilityCommandHandlers.NamedCommand;
-import net.kyori.adventure.text.Component;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.hotamachisubaru.miniutility.MiniutilityPlugin;
 import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
 import org.hotamachisubaru.miniutility.ui.UtilityMenuFactory;
-import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

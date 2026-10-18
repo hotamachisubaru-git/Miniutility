@@ -42,6 +42,14 @@ mvn -B -ntp verify -Dminecraft.version=26.3 -Dspigot.version=26.3-R0.1-SNAPSHOT 
 
 成果物は `target/<Minecraft版>/Miniutility-paper-spigot-<Minecraft版>-26.3.1.jar` です。`original-` 付きJARは使用しません。GitHub Actions は全対象版のビルドとテストを実行し、成果物を版ごとに保存します。
 
+### VS Code で共有コードが見つからない場合
+
+`common/src/main/java` と `common/src/test/java` は、`pom.xml` の `build-helper-maven-plugin` でソースとして登録します。VS Code では `pom.xml` があるリポジトリのルートを開いてください。
+
+`NicknameRules cannot be resolved` と `Project configuration is not up-to-date with pom.xml` が表示された場合は、コマンドパレット（`Ctrl+Shift+P`）から **Java: Reload Projects** を実行し、読み込み完了を待ちます。解消しない場合は **Java: Clean Java Language Server Workspace** でキャッシュを再構築してください。共有クラスのコピーや手動のソースパス追加は不要です。
+
+今後の `pom.xml` の変更は、リポジトリの `java.configuration.updateBuildConfiguration: automatic` 設定で自動反映します。コマンドの詳細は [Java 拡張の公式ドキュメント](https://github.com/redhat-developer/vscode-java#available-commands) を参照してください。
+
 ## 構成と検証
 
 Spigot APIを基準に実装し、Paper の非同期テレポートは利用可能な場合だけ呼び出します。コマンドは `plugin.yml` と Bukkit の標準登録を使用します。`common/` は MOD版と共有する入力検証・保存・セッションのロジックです。
