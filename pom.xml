@@ -112,6 +112,7 @@
         </plugins>
 
         <resources>
+            <resource><directory>${project.basedir}</directory><includes><include>LICENSE</include></includes><filtering>false</filtering></resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
