@@ -230,7 +230,7 @@ public final class ReleaseUpdateNotifier {
     }
 
     private String currentPluginVersion() {
-        return plugin.getPluginMeta().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     static boolean isNewerVersion(@Nullable String candidate, @Nullable String current) {

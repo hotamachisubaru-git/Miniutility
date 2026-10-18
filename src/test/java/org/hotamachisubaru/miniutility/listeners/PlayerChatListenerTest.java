@@ -1,7 +1,6 @@
 package org.hotamachisubaru.miniutility.listeners;
 
-import io.papermc.paper.chat.ChatRenderer;
-import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -49,13 +48,10 @@ class PlayerChatListenerTest {
 
     @Test
     void ordinaryChatUsesOnlyCachedNameAndPreservesTheMessage() {
-        AsyncChatEvent event = chat("hello");
+        AsyncPlayerChatEvent event = chat("hello");
         listener.onAsyncChat(event);
-        ChatRenderer renderer = assignedRenderer(event);
-        assertNotNull(renderer);
-        Player source = Objects.requireNonNull(player);
-        assertEquals("Alice » hello", LegacyTextFormatter.plain(renderer.render(
-                source, Component.text("Original"), event.message(), source)));
+        String format = assignedRenderer(event);
+        assertEquals("Alice » hello", org.bukkit.ChatColor.stripColor(String.format(format, "Original", "hello")));
         verify(manager, never()).getDisplayNameComponent(any(Player.class));
         verify(event, never()).setCancelled(true);
         assertTrue(serverTasks.isEmpty());
@@ -64,13 +60,13 @@ class PlayerChatListenerTest {
     @Test
     void validNicknameIsPrivateAndConsumedExactlyOnceOnTheServerThread() {
         listener.awaitNicknameInput(player);
-        AsyncChatEvent input = chat("  ほしまち  ");
+        AsyncPlayerChatEvent input = chat("  ほしまち  ");
         listener.onAsyncChat(input);
         verify(input).setCancelled(true);
         verify(manager, never()).setNickname(any(), anyString());
         runServerTasks();
         verify(manager).setNickname(player, "ほしまち");
-        AsyncChatEvent next = chat("ordinary");
+        AsyncPlayerChatEvent next = chat("ordinary");
         listener.onAsyncChat(next);
         verify(next, never()).setCancelled(true);
         assertNotNull(assignedRenderer(next));
@@ -120,7 +116,7 @@ class PlayerChatListenerTest {
         runServerTasks();
         verify(manager, never()).setNickname(any(), anyString());
         verify(manager).forgetPlayer(playerId);
-        AsyncChatEvent ordinary = chat("hello");
+        AsyncPlayerChatEvent ordinary = chat("hello");
         listener.onAsyncChat(ordinary);
         verify(ordinary, never()).setCancelled(true);
     }
@@ -135,10 +131,10 @@ class PlayerChatListenerTest {
     }
 
     @NullMarked
-    private AsyncChatEvent chat(String message) {
-        AsyncChatEvent event = mock(AsyncChatEvent.class);
+    private AsyncPlayerChatEvent chat(String message) {
+        AsyncPlayerChatEvent event = mock(AsyncPlayerChatEvent.class);
         when(event.getPlayer()).thenReturn(player);
-        when(event.message()).thenReturn(Component.text(message));
+        when(event.getMessage()).thenReturn(message);
         return event;
     }
 
@@ -153,12 +149,12 @@ class PlayerChatListenerTest {
         }
     }
 
-    private static ChatRenderer assignedRenderer(AsyncChatEvent event) {
+    private static String assignedRenderer(AsyncPlayerChatEvent event) {
         var rendererCalls = mockingDetails(event).getInvocations().stream()
-                .filter(invocation -> invocation.getMethod().getName().equals("renderer")
+                .filter(invocation -> invocation.getMethod().getName().equals("setFormat")
                         && invocation.getArguments().length == 1)
                 .toList();
         assertEquals(1, rendererCalls.size());
-        return (ChatRenderer) rendererCalls.getFirst().getArguments()[0];
+        return (String) rendererCalls.get(0).getArguments()[0];
     }
 }

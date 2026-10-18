@@ -1,7 +1,6 @@
 package org.hotamachisubaru.miniutility.listeners;
 
-import io.papermc.paper.chat.ChatRenderer;
-import io.papermc.paper.event.player.AsyncChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -12,7 +11,6 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.hotamachisubaru.miniutility.listeners.input.ChatInputRouter;
 import org.hotamachisubaru.miniutility.listeners.input.ChatInputMode;
-import org.hotamachisubaru.miniutility.listeners.renderer.NicknameChatRenderer;
 import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
 import org.hotamachisubaru.miniutility.util.LegacyTextFormatter;
 
@@ -33,25 +31,26 @@ public final class PlayerChatListener implements Listener {
         this.inputDispatcher = new ChatInputRouter(
                 nicknameManager,
                 nicknameManager::runOnServerThread,
-                (player, message) -> player.sendMessage(LegacyTextFormatter.text(message.text(), message.color()))
+                (player, message) -> LegacyTextFormatter.send(player, LegacyTextFormatter.text(message.text(), message.color()))
         );
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onAsyncChat(AsyncChatEvent event) {
+    public void onAsyncChat(AsyncPlayerChatEvent event) {
         Player player = Objects.requireNonNull(event.getPlayer(), "chat player");
         UUID playerId = player.getUniqueId();
         InputSession session = pendingInputs.get(playerId);
         if (session != null) {
-            String input = Objects.requireNonNull(LegacyTextFormatter.plain(event.message()).trim());
+            String input = Objects.requireNonNull(event.getMessage().trim());
             event.setCancelled(true);
             nicknameManager.runOnServerThread(() -> handlePendingInput(player, playerId, session, input));
             return;
         }
         var cachedDisplayName = nicknameManager.getCachedDisplayNameComponent(playerId).orElse(null);
-        NicknameChatRenderer renderer = cachedDisplayName == null
-                ? new NicknameChatRenderer() : new NicknameChatRenderer(cachedDisplayName);
-        event.renderer(ChatRenderer.viewerUnaware(renderer));
+        if (cachedDisplayName != null) {
+            String name = LegacyTextFormatter.serialize(cachedDisplayName).replace("%", "%%");
+            event.setFormat(name + " §7» §r%2$s");
+        }
     }
 
     @EventHandler

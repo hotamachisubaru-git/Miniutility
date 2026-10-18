@@ -36,7 +36,7 @@ public final class OwnedMenuInventoryHolder implements InventoryHolder {
             throw new IllegalStateException("GUI inventory is already bound.");
         }
         Objects.requireNonNull(inventory, "inventory");
-        if (inventory.getSize() != type.getSize() || inventory.getHolder(false) != this) {
+        if (inventory.getSize() != type.getSize() || inventory.getHolder() != this) {
             throw new IllegalArgumentException("Inventory does not belong to this GUI holder.");
         }
         this.inventory = inventory;

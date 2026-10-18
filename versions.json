@@ -1,0 +1,140 @@
+[
+  {
+    "minecraft": "1.20.1",
+    "spigot": "1.20.1-R0.1-SNAPSHOT",
+    "java": 17,
+    "api": "1.20"
+  },
+  {
+    "minecraft": "1.20.2",
+    "spigot": "1.20.2-R0.1-SNAPSHOT",
+    "java": 17,
+    "api": "1.20"
+  },
+  {
+    "minecraft": "1.20.3",
+    "spigot": "1.20.3-R0.1-SNAPSHOT",
+    "java": 17,
+    "api": "1.20"
+  },
+  {
+    "minecraft": "1.20.4",
+    "spigot": "1.20.4-R0.1-SNAPSHOT",
+    "java": 17,
+    "api": "1.20"
+  },
+  {
+    "minecraft": "1.20.5",
+    "spigot": "1.20.5-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.20.5"
+  },
+  {
+    "minecraft": "1.20.6",
+    "spigot": "1.20.6-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.20.6"
+  },
+  {
+    "minecraft": "1.21",
+    "spigot": "1.21-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21"
+  },
+  {
+    "minecraft": "1.21.1",
+    "spigot": "1.21.1-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.1"
+  },
+  {
+    "minecraft": "1.21.2",
+    "spigot": "1.21.2-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.2"
+  },
+  {
+    "minecraft": "1.21.3",
+    "spigot": "1.21.3-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.3"
+  },
+  {
+    "minecraft": "1.21.4",
+    "spigot": "1.21.4-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.4"
+  },
+  {
+    "minecraft": "1.21.5",
+    "spigot": "1.21.5-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.5"
+  },
+  {
+    "minecraft": "1.21.6",
+    "spigot": "1.21.6-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.6"
+  },
+  {
+    "minecraft": "1.21.7",
+    "spigot": "1.21.7-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.7"
+  },
+  {
+    "minecraft": "1.21.8",
+    "spigot": "1.21.8-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.8"
+  },
+  {
+    "minecraft": "1.21.9",
+    "spigot": "1.21.9-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.9"
+  },
+  {
+    "minecraft": "1.21.10",
+    "spigot": "1.21.10-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.10"
+  },
+  {
+    "minecraft": "1.21.11",
+    "spigot": "1.21.11-R0.1-SNAPSHOT",
+    "java": 21,
+    "api": "1.21.11"
+  },
+  {
+    "minecraft": "26.1",
+    "spigot": "26.1-R0.1-SNAPSHOT",
+    "java": 25,
+    "api": "26.1"
+  },
+  {
+    "minecraft": "26.1.1",
+    "spigot": "26.1.1-R0.1-SNAPSHOT",
+    "java": 25,
+    "api": "26.1.1"
+  },
+  {
+    "minecraft": "26.1.2",
+    "spigot": "26.1.2-R0.1-SNAPSHOT",
+    "java": 25,
+    "api": "26.1.2"
+  },
+  {
+    "minecraft": "26.2",
+    "spigot": "26.2-R0.1-SNAPSHOT",
+    "java": 25,
+    "api": "26.2"
+  },
+  {
+    "minecraft": "26.3",
+    "spigot": "26.3-R0.1-SNAPSHOT",
+    "java": 25,
+    "api": "26.3"
+  }
+]

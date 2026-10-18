@@ -1,6 +1,6 @@
 package org.hotamachisubaru.miniutility.registry;
 
-import io.papermc.paper.command.brigadier.BasicCommand;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NullMarked;
 
@@ -10,9 +10,9 @@ import java.util.Objects;
 import java.util.function.Function;
 
 /**
- * Paper のライフサイクルを使って、再登録にも対応するコマンドを登録します。
+ * plugin.yml に宣言した Bukkit/Spigot 共通コマンドを登録します。
  */
-public final class PaperCommandRegistrar {
+public final class BukkitCommandRegistrar {
     private static final Map<String, String> DESCRIPTIONS = Map.of(
             "menu", "便利機能を開きます。",
             "load", "データベースからニックネームをロードします。",
@@ -21,11 +21,11 @@ public final class PaperCommandRegistrar {
 
     private final JavaPlugin plugin;
 
-    public PaperCommandRegistrar(JavaPlugin plugin) {
+    public BukkitCommandRegistrar(JavaPlugin plugin) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
     }
 
-    public void register(Function<String, BasicCommand> commandFactory, String... commandNames) {
+    public void register(Function<String, TabExecutor> commandFactory, String... commandNames) {
         Objects.requireNonNull(commandFactory, "commandFactory");
         Objects.requireNonNull(commandNames, "commandNames");
         // Validate the entire batch before mutating Paper's command registrations.
@@ -37,11 +37,13 @@ public final class PaperCommandRegistrar {
             return new CommandBinding(name, Objects.requireNonNull(commandFactory.apply(name), "command"));
         }).toList();
         for (var command : commands) {
-            plugin.registerCommand(command.name(), DESCRIPTIONS.get(command.name()), command.command());
+            var registered = Objects.requireNonNull(plugin.getCommand(command.name()), "Missing plugin.yml command: " + command.name());
+            registered.setExecutor(command.command());
+            registered.setTabCompleter(command.command());
         }
     }
 
     @NullMarked
-    private record CommandBinding(String name, BasicCommand command) {
+    private record CommandBinding(String name, TabExecutor command) {
     }
 }

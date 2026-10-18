@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MenuType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.IllegalPluginAccessException;
 import org.hotamachisubaru.miniutility.creeper.CreeperBlockProtection;
@@ -63,7 +62,7 @@ public final class UtilityMenuActions {
     public void scheduleClick(Player player, Inventory sourceInventory, int rawSlot) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(sourceInventory, "sourceInventory");
-        if (!(sourceInventory.getHolder(false) instanceof OwnedMenuInventoryHolder holder)
+        if (!(sourceInventory.getHolder() instanceof OwnedMenuInventoryHolder holder)
                 || !holder.isOwner(player.getUniqueId())) {
             return;
         }
@@ -111,7 +110,7 @@ public final class UtilityMenuActions {
             case CREEPER_HEAD -> toggleCreeperProtection(player);
             case EXPERIENCE_BOTTLE -> beginExperienceInput(player);
             case COMPASS -> toggleGameMode(player);
-            default -> player.sendMessage(LegacyTextFormatter.text("このアイテムにはアクションが設定されていません。", NamedTextColor.RED));
+            default -> LegacyTextFormatter.send(player, LegacyTextFormatter.text("このアイテムにはアクションが設定されていません。", NamedTextColor.RED));
         }
     }
 
@@ -122,19 +121,19 @@ public final class UtilityMenuActions {
             case PAPER -> {
                 player.closeInventory();
                 chatListener.awaitNicknameInput(player);
-                player.sendMessage(LegacyTextFormatter.text("新しいニックネームをチャットに入力してください。", NamedTextColor.AQUA));
+                LegacyTextFormatter.send(player, LegacyTextFormatter.text("新しいニックネームをチャットに入力してください。", NamedTextColor.AQUA));
             }
             case NAME_TAG -> {
                 player.closeInventory();
                 chatListener.awaitColorNicknameInput(player);
-                player.sendMessage(LegacyTextFormatter.text("色付きのニックネームをチャットに入力してください。例: &6ほたまち", NamedTextColor.AQUA));
+                LegacyTextFormatter.send(player, LegacyTextFormatter.text("色付きのニックネームをチャットに入力してください。例: &6ほたまち", NamedTextColor.AQUA));
             }
             case BARRIER -> {
                 nicknameManager.removeNickname(player);
                 player.closeInventory();
-                player.sendMessage(LegacyTextFormatter.text("ニックネームをリセットしました。", NamedTextColor.GREEN));
+                LegacyTextFormatter.send(player, LegacyTextFormatter.text("ニックネームをリセットしました。", NamedTextColor.GREEN));
             }
-            default -> player.sendMessage(LegacyTextFormatter.text("無効な選択です。", NamedTextColor.RED));
+            default -> LegacyTextFormatter.send(player, LegacyTextFormatter.text("無効な選択です。", NamedTextColor.RED));
         }
     }
 
@@ -156,31 +155,31 @@ public final class UtilityMenuActions {
         if (clickedItem.getType() == Material.LIME_WOOL) {
             trashBoxSessionStore.remove(player.getUniqueId());
             player.closeInventory();
-            player.sendMessage(LegacyTextFormatter.text("ゴミ箱のアイテムをすべて削除しました。", NamedTextColor.GREEN));
+            LegacyTextFormatter.send(player, LegacyTextFormatter.text("ゴミ箱のアイテムをすべて削除しました。", NamedTextColor.GREEN));
             return;
         }
 
         if (clickedItem.getType() == Material.RED_WOOL) {
             @Nullable ItemStack[] snapshot = trashBoxSessionStore.remove(player.getUniqueId());
             player.openInventory(UtilityMenuFactory.createTrashBox(player.getUniqueId(), Objects.requireNonNull(snapshot)));
-            player.sendMessage(LegacyTextFormatter.text("削除をキャンセルしました。", NamedTextColor.YELLOW));
+            LegacyTextFormatter.send(player, LegacyTextFormatter.text("削除をキャンセルしました。", NamedTextColor.YELLOW));
         }
     }
 
     private void teleportToDeathLocation(Player player) {
         Optional<Location> storedLocation = deathLocationStore.find(player.getUniqueId());
         if (storedLocation.isEmpty()) {
-            player.sendMessage(LegacyTextFormatter.text("死亡地点が見つかりません。", NamedTextColor.RED));
+            LegacyTextFormatter.send(player, LegacyTextFormatter.text("死亡地点が見つかりません。", NamedTextColor.RED));
             return;
         }
 
         Location deathLocation = storedLocation.orElseThrow();
-        if (!deathLocation.isWorldLoaded()) {
-            player.sendMessage(LegacyTextFormatter.text("死亡地点のワールドが見つかりません。", NamedTextColor.RED));
+        if (deathLocation.getWorld() == null) {
+            LegacyTextFormatter.send(player, LegacyTextFormatter.text("死亡地点のワールドが見つかりません。", NamedTextColor.RED));
             return;
         }
         try {
-            player.teleportAsync(deathLocation).whenComplete((succeeded, failure) ->
+            org.hotamachisubaru.miniutility.util.ServerCompatibility.teleport(player, deathLocation).whenComplete((succeeded, failure) ->
                     notifyTeleportResult(player, Boolean.TRUE.equals(succeeded), failure)
             );
         } catch (IllegalArgumentException | IllegalStateException failure) {
@@ -201,7 +200,7 @@ public final class UtilityMenuActions {
                 if (!originalPlayer.isOnline()) {
                     return;
                 }
-                originalPlayer.sendMessage(LegacyTextFormatter.text(
+                LegacyTextFormatter.send(originalPlayer, LegacyTextFormatter.text(
                         succeeded ? "死亡地点にワープしました。" : "死亡地点へのワープに失敗しました。",
                         succeeded ? NamedTextColor.GREEN : NamedTextColor.RED
                 ));
@@ -214,17 +213,13 @@ public final class UtilityMenuActions {
     }
 
     private void openCraftingTable(Player player) {
-        InventoryView view = MenuType.CRAFTING.builder()
-                .title(LegacyTextFormatter.text("作業台"))
-                .checkReachable(false)
-                .build(Objects.requireNonNull(player, "player"));
-        player.openInventory(Objects.requireNonNull(view, "crafting inventory view"));
+        player.openWorkbench(null, true);
     }
 
     private void toggleCreeperProtection(Player player) {
         boolean enabled = creeperProtectionService.toggle();
         player.closeInventory();
-        player.sendMessage(LegacyTextFormatter.text(
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text(
                 "クリーパーの爆破によるブロック破壊防止が " + (enabled ? "有効" : "無効") + " になりました。",
                 NamedTextColor.GREEN
         ));
@@ -233,15 +228,15 @@ public final class UtilityMenuActions {
     private void beginExperienceInput(Player player) {
         player.closeInventory();
         chatListener.awaitExpInput(player);
-        player.sendMessage(LegacyTextFormatter.text("経験値を増減する数値をチャットに入力してください。", NamedTextColor.AQUA));
-        player.sendMessage(LegacyTextFormatter.text("例: \"10\" で +10 レベル, \"-5\" で -5 レベル", NamedTextColor.GRAY));
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text("経験値を増減する数値をチャットに入力してください。", NamedTextColor.AQUA));
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text("例: \"10\" で +10 レベル, \"-5\" で -5 レベル", NamedTextColor.GRAY));
     }
 
     private void toggleGameMode(Player player) {
         GameMode nextMode = player.getGameMode() == GameMode.SURVIVAL ? GameMode.CREATIVE : GameMode.SURVIVAL;
         player.setGameMode(nextMode);
         player.closeInventory();
-        player.sendMessage(LegacyTextFormatter.text(
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text(
                 "ゲームモードを " + (nextMode == GameMode.CREATIVE ? "クリエイティブ" : "サバイバル") + " に変更しました。",
                 NamedTextColor.GREEN
         ));

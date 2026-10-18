@@ -18,8 +18,8 @@ class LegacyTextFormatterTest {
         assertEquals("Alice_1", LegacyTextFormatter.plain(restored));
         assertEquals(LegacyTextFormatter.legacy("&aAlice§l_1&r").compact(), restored);
         assertEquals(NamedTextColor.GREEN, restored.color());
-        assertEquals("_1", LegacyTextFormatter.plain(Objects.requireNonNull(restored.children().getLast())));
-        assertEquals(TextDecoration.State.TRUE, restored.children().getLast().decoration(TextDecoration.BOLD));
+        assertEquals("_1", LegacyTextFormatter.plain(Objects.requireNonNull(restored.children().get(restored.children().size() - 1))));
+        assertEquals(TextDecoration.State.TRUE, restored.children().get(restored.children().size() - 1).decoration(TextDecoration.BOLD));
         assertTrue(stored.contains("§a"));
         assertTrue(stored.contains("§l"));
     }
@@ -32,7 +32,7 @@ class LegacyTextFormatterTest {
         assertEquals("Alice » hello", LegacyTextFormatter.plain(rendered));
         assertNull(rendered.color());
         assertEquals(TextDecoration.State.NOT_SET, rendered.decoration(TextDecoration.BOLD));
-        assertEquals(message, rendered.children().getLast());
+        assertEquals(message, rendered.children().get(rendered.children().size() - 1));
     }
 
     @Test

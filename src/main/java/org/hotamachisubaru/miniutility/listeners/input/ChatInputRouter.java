@@ -55,10 +55,10 @@ public final class ChatInputRouter {
 
     private void changeExperience(Player player, int requestedChange) {
         int currentLevel = player.getLevel();
-        int appliedChange = Math.clamp(requestedChange, -currentLevel, Integer.MAX_VALUE - currentLevel);
+        int appliedChange = Math.max(-currentLevel, Math.min(requestedChange, Integer.MAX_VALUE - currentLevel));
         player.giveExpLevels(appliedChange);
         String signedChange = appliedChange > 0 ? "+" + appliedChange : Integer.toString(appliedChange);
-        player.sendMessage(LegacyTextFormatter.text(
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text(
                 "経験値レベルを " + signedChange + " しました。現在レベル: " + player.getLevel(),
                 NamedTextColor.GREEN
         ));
@@ -66,7 +66,7 @@ public final class ChatInputRouter {
 
     private void setPlainNickname(Player player, String nickname) {
         nicknameManager.setNickname(player, nickname);
-        player.sendMessage(LegacyTextFormatter.text(
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text(
                 "ニックネームを「" + nickname + "」に設定しました。", NamedTextColor.GREEN
         ));
     }
@@ -74,7 +74,7 @@ public final class ChatInputRouter {
     private void setColoredNickname(Player player, String input) {
         String nickname = LegacyTextFormatter.ampersandToSection(input);
         nicknameManager.setNickname(player, nickname);
-        player.sendMessage(LegacyTextFormatter.text("ニックネームを設定しました: ", NamedTextColor.GREEN)
+        LegacyTextFormatter.send(player, LegacyTextFormatter.text("ニックネームを設定しました: ", NamedTextColor.GREEN)
                 .append(LegacyTextFormatter.legacySection(nickname)));
     }
 

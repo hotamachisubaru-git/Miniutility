@@ -40,7 +40,7 @@ final class PlayerNicknameServiceTest {
 
             assertEquals("Original", fixture.manager.getDisplayName(fixture.player));
             assertTrue(fixture.manager.getCachedDisplayNameComponent(fixture.owner).isEmpty());
-            verify(fixture.player, never()).displayName(any(Component.class));
+            verify(fixture.player, never()).setDisplayName(anyString());
         }
     }
 
@@ -85,7 +85,7 @@ final class PlayerNicknameServiceTest {
             assertEquals(1, fixture.tasks.size());
             fixture.enabled.set(false);
 
-            fixture.tasks.removeFirst().run();
+            fixture.tasks.remove(0).run();
             fixture.manager.runOnServerThread(action);
 
             verifyNoInteractions(action);

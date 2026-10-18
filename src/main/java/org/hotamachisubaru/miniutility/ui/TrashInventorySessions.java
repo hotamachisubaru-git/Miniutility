@@ -19,7 +19,7 @@ public final class TrashInventorySessions {
     public void save(UUID playerId, Inventory inventory) {
         Objects.requireNonNull(playerId, "playerId");
         Objects.requireNonNull(inventory, "inventory");
-        if (!(inventory.getHolder(false) instanceof OwnedMenuInventoryHolder holder)
+        if (!(inventory.getHolder() instanceof OwnedMenuInventoryHolder holder)
                 || holder.getType() != UtilityMenuKind.TRASH
                 || !holder.isOwner(playerId)
                 || inventory.getSize() != UtilityMenuKind.TRASH.getSize()) {

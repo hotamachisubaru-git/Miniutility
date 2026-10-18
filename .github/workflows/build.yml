@@ -1,0 +1,44 @@
+name: Paper and Spigot builds
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+concurrency:
+  group: plugin-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.matrix.outputs.versions }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: matrix
+        run: |
+          echo "versions=$(jq -c '{include: .}' versions.json)" >> "$GITHUB_OUTPUT"
+  build:
+    needs: matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJson(needs.matrix.outputs.versions) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+      - name: Build and test
+        run: >-
+          mvn -B -ntp verify
+          -Dminecraft.version=${{ matrix.minecraft }}
+          -Dspigot.version=${{ matrix.spigot }}
+          -Djava.version=${{ matrix.java }}
+          -Dbukkit.api.version=${{ matrix.api }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Miniutility-paper-spigot-${{ matrix.minecraft }}
+          path: target/${{ matrix.minecraft }}/Miniutility-paper-spigot-*.jar
+          if-no-files-found: error

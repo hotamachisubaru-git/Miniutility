@@ -35,7 +35,7 @@ final class UtilityMenuListenerTest {
     private void open(UtilityMenuKind type) {
         when(player.getUniqueId()).thenReturn(owner);
         when(view.getTopInventory()).thenReturn(top);
-        when(top.getHolder(false)).thenReturn(new OwnedMenuInventoryHolder(type, owner));
+        when(top.getHolder()).thenReturn(new OwnedMenuInventoryHolder(type, owner));
         when(top.getSize()).thenReturn(type.getSize());
     }
 

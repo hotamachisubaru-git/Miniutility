@@ -3,10 +3,19 @@ version: '${project.version}'
 main: org.hotamachisubaru.miniutility.MiniutilityPlugin
 author: hotamachisubaru
 load: POSTWORLD
-api-version: '${minecraft.version}'
+api-version: '${bukkit.api.version}'
 softdepend: [LuckPerms]
 description: 著作権 2024-2026 hotamachisubaru。すべての権利を保有します。
 permissions:
   miniutility.load:
     description: データベースからニックネームをロードします。
     default: op
+
+commands:
+  menu:
+    description: 便利機能を開きます。
+  load:
+    description: ニックネームを再読み込みします。
+    permission: miniutility.load
+  prefixtoggle:
+    description: プレフィックスの表示を切り替えます。
