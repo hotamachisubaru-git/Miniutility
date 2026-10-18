@@ -90,12 +90,8 @@ public final class ModRuntime {
             });
             return true;
         }
-        // メッセージを改変して署名付きチャットとして再送せず、サーバーメッセージとして配信します。
-        nextTick.add(() -> {
-            if (online(player)) server.getPlayerList().broadcastSystemMessage(Component.empty().append(displayName(player))
-                    .append(Component.literal(" » ")).append(Component.literal(text)), false);
-        });
-        return true;
+        // ChatType binds the player display name; leave normal signed chat delivery to Minecraft.
+        return false;
     }
     private boolean online(ServerPlayer player) {
         return active && server.getPlayerList().getPlayer(player.getUUID()) == player;
