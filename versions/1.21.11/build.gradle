@@ -64,7 +64,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 base.archivesName = 'Miniutility-forge-1.21.11'
-sourceSets.main.java.srcDirs += ['../../common/src/main/java', '../../mod-common/src/main/java', '../../loader/src/modern/java']
+sourceSets.main.java.srcDirs += ['../../common/src/main/java', '../../mod-common/src/main/java']
 sourceSets.test.java.srcDirs += ['../../common/src/test/java']
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.2'
@@ -72,3 +72,5 @@ dependencies {
     compileOnly 'net.luckperms:api:5.5'
 }
 test { useJUnitPlatform() }
+
+jar { from('../../LICENSE') }
