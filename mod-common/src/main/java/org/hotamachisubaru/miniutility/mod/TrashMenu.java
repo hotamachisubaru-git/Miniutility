@@ -8,7 +8,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public final class TrashMenu extends AbstractContainerMenu {
+public final class TrashMenu extends CompatMenu {
     private final ModRuntime runtime;
     private final ServerPlayer owner;
     private final TrashSession session;
@@ -21,7 +21,7 @@ public final class TrashMenu extends AbstractContainerMenu {
             @Override public boolean mayPlace(ItemStack stack) { return false; }
             @Override public boolean mayPickup(Player player) { return false; }
         });
-        ItemStack confirm = new ItemStack(Items.LIME_WOOL);
+        ItemStack confirm = new ItemStack(Items.EMERALD);
         Compat.label(confirm, Component.literal("削除を確認"));
         session.contents.setItem(53, confirm);
         for (int y = 0; y < 3; y++) for (int x = 0; x < 9; x++)
@@ -29,19 +29,19 @@ public final class TrashMenu extends AbstractContainerMenu {
         for (int x = 0; x < 9; x++) addSlot(new Slot(inventory, x, 8 + x * 18, 197));
     }
     @Override public boolean stillValid(Player player) { return player == owner; }
-    @Override public void clicked(int slot, int button, ClickType type, Player player) {
-        if (player != owner || transfer) return;
+    @Override protected boolean interceptClick(int slot, int button, boolean pickup, Player player) {
+        if (player != owner || transfer) return true;
         if (slot == 53) {
-            if (type == ClickType.PICKUP && (button == 0 || button == 1)) {
+            if (pickup && (button == 0 || button == 1)) {
                 runtime.schedule(owner, this, () -> {
                     transfer = true;
                     try { if (!runtime.confirmTrash(owner, session)) { transfer = false; session.giveBack(owner); } }
                     catch (RuntimeException failure) { transfer = false; session.giveBack(owner); throw failure; }
                 });
             }
-            return;
+            return true;
         }
-        super.clicked(slot, button, type, player);
+        return false;
     }
     @Override public ItemStack quickMoveStack(Player player, int index) {
         if (player != owner || index < 0 || index >= slots.size() || index == 53) return ItemStack.EMPTY;

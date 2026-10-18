@@ -18,7 +18,7 @@ public final class ModText {
             if (format != null) {
                 if (part.length() > 0) { result.append(Component.literal(part.toString()).setStyle(style)); part.setLength(0); }
                 style = format == ChatFormatting.RESET ? Style.EMPTY
-                        : format.isColor() ? Style.EMPTY.applyFormat(format) : style.applyFormat(format);
+                        : "0123456789abcdef".indexOf(Character.toLowerCase(text.charAt(i + 1))) >= 0 ? Style.EMPTY.applyFormat(format) : style.applyFormat(format);
                 i++;
             } else part.append(c);
         }

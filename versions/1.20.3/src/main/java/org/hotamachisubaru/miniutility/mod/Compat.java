@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 public final class Compat {
+    public static void drop(ServerPlayer player, ItemStack stack) { player.drop(stack, false, true); }
     private Compat() { }
     public static MinecraftServer server(ServerPlayer player) { return level(player).getServer(); }
     public static ServerLevel level(ServerPlayer player) { return (ServerLevel) player.level(); }

@@ -10,7 +10,7 @@ Minecraft 1.20.1〜26.3 のうち Forge の配布が存在する21版を、`vers
 
 ## 導入
 
-同じ Minecraft 版の Forge サーバーの `mods` に `Miniutility-forge-<Minecraft版>-1.0.0.jar` を配置して再起動します。GUI はバニラの画面を使用し、Miniutility のクライアント導入は不要です。LuckPerms は任意です。
+同じ Minecraft 版の Forge サーバーの `mods` に `Miniutility-forge-<Minecraft版>-26.3.1.jar` を配置して再起動します。GUI はバニラの画面を使用し、Miniutility のクライアント導入は不要です。LuckPerms は任意です。
 
 `/menu` で死亡地点ワープ、経験値レベル増減、ゲームモード切替、クリーパーのブロック破壊防止、エンダーチェスト、確認付きゴミ箱、ニックネーム変更、作業台を開けます。元のプラグインと同様、メニューの機能は一般プレイヤーも利用できます。
 

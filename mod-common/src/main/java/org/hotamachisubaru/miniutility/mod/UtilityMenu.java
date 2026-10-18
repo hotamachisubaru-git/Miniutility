@@ -10,7 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public final class UtilityMenu extends AbstractContainerMenu {
+public final class UtilityMenu extends CompatMenu {
     public enum Page {
         MAIN(3, "メニュー"), NICKNAME(1, "ニックネーム変更"), CONFIRM(1, "本当に捨てますか？");
         final int rows; final String title;
@@ -48,8 +48,8 @@ public final class UtilityMenu extends AbstractContainerMenu {
             icon(icons, 4, Items.NAME_TAG, "カラーコード指定");
             icon(icons, 6, Items.BARRIER, "リセット");
         } else {
-            icon(icons, 3, Items.LIME_WOOL, "はい、削除します");
-            icon(icons, 5, Items.RED_WOOL, "いいえ、戻ります");
+            icon(icons, 3, Items.EMERALD, "はい、削除します");
+            icon(icons, 5, Items.BARRIER, "いいえ、戻ります");
         }
     }
     private static void icon(SimpleContainer icons, int slot, Item item, String name) {
@@ -65,9 +65,9 @@ public final class UtilityMenu extends AbstractContainerMenu {
     }
     @Override public boolean stillValid(Player player) { return player == owner; }
     @Override public ItemStack quickMoveStack(Player player, int index) { return ItemStack.EMPTY; }
-    @Override public void clicked(int slot, int button, ClickType type, Player player) {
-        if (player != owner || type != ClickType.PICKUP || button < 0 || button > 1
-                || slot < 0 || slot >= page.rows * 9 || !slots.get(slot).hasItem()) return;
+    @Override protected boolean interceptClick(int slot, int button, boolean pickup, Player player) {
+        if (player != owner || !pickup || button < 0 || button > 1
+                || slot < 0 || slot >= page.rows * 9 || !slots.get(slot).hasItem()) return true;
         runtime.schedule(owner, this, () -> {
             if (page != Page.CONFIRM) runtime.choose(owner, page, slot);
             else if (trash != null && slot == 3) {
@@ -78,6 +78,7 @@ public final class UtilityMenu extends AbstractContainerMenu {
                 catch (RuntimeException failure) { transfer = false; trash.giveBack(owner); throw failure; }
             }
         });
+        return true;
     }
     @Override public void removed(Player player) {
         super.removed(player);

@@ -15,7 +15,7 @@ public final class TrashSession {
             ItemStack stack = contents.removeItemNoUpdate(i);
             if (!stack.isEmpty()) {
                 owner.getInventory().add(stack);
-                if (!stack.isEmpty()) owner.drop(stack, false);
+                if (!stack.isEmpty()) Compat.drop(owner, stack);
             }
         }
         contents.clearContent();
