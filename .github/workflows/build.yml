@@ -11,7 +11,7 @@ jobs:
     outputs:
       versions: ${{ steps.matrix.outputs.versions }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: matrix
         run: |
           echo "versions=$(jq -c '{include: map(. + {gradleJava:25})}' versions.json)" >> "$GITHUB_OUTPUT"
@@ -24,12 +24,12 @@ jobs:
       max-parallel: 6
       matrix: ${{ fromJson(needs.matrix.outputs.versions) }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: ${{ matrix.gradleJava }}
@@ -37,7 +37,7 @@ jobs:
       - name: Build and test
         working-directory: versions/${{ matrix.minecraft }}
         run: bash gradlew --no-daemon build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Miniutility-fabric-${{ matrix.minecraft }}
           path: versions/${{ matrix.minecraft }}/build/libs/*.jar
