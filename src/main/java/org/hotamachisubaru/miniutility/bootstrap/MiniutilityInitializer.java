@@ -12,7 +12,7 @@ import org.hotamachisubaru.miniutility.listeners.UtilityMenuListener;
 import org.hotamachisubaru.miniutility.nicknames.SqliteNicknameRepository;
 import org.hotamachisubaru.miniutility.nicknames.PlayerNicknameService;
 import org.hotamachisubaru.miniutility.nicknames.LegacyNicknameImporter;
-import org.hotamachisubaru.miniutility.registry.PaperCommandRegistrar;
+import org.hotamachisubaru.miniutility.registry.BukkitCommandRegistrar;
 import org.hotamachisubaru.miniutility.registry.PluginListenerRegistrar;
 import org.hotamachisubaru.miniutility.ui.UtilityMenuActions;
 import org.hotamachisubaru.miniutility.ui.TrashInventorySessions;
@@ -134,7 +134,7 @@ public final class MiniutilityInitializer {
     }
 
     private void registerCommands() {
-        new PaperCommandRegistrar(plugin).register(
+        new BukkitCommandRegistrar(plugin).register(
                 new UtilityCommandHandlers(plugin)::commandAdapter,
                 "menu",
                 "load",

@@ -27,7 +27,7 @@ final class OwnedMenuInventoryHolderTest {
     void bindsExactlyOnceWithTheDeclaredInventorySize() {
         OwnedMenuInventoryHolder holder = new OwnedMenuInventoryHolder(UtilityMenuKind.TRASH, UUID.randomUUID());
         Inventory inventory = mock(Inventory.class);
-        when(inventory.getHolder(false)).thenReturn(holder);
+        when(inventory.getHolder()).thenReturn(holder);
         when(inventory.getSize()).thenReturn(9);
         assertThrows(IllegalArgumentException.class, () -> holder.bind(inventory));
 

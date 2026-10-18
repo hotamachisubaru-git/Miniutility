@@ -35,7 +35,7 @@ public final class UtilityMenuListener implements Listener {
         }
 
         Inventory topInventory = event.getView().getTopInventory();
-        if (!(topInventory.getHolder(false) instanceof OwnedMenuInventoryHolder guiHolder)) {
+        if (!(topInventory.getHolder() instanceof OwnedMenuInventoryHolder guiHolder)) {
             return;
         }
         if (!guiHolder.isOwner(player.getUniqueId())) {
@@ -68,7 +68,7 @@ public final class UtilityMenuListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onInventoryDrag(InventoryDragEvent event) {
         Inventory topInventory = event.getView().getTopInventory();
-        if (!(topInventory.getHolder(false) instanceof OwnedMenuInventoryHolder guiHolder)) {
+        if (!(topInventory.getHolder() instanceof OwnedMenuInventoryHolder guiHolder)) {
             return;
         }
         if (!guiHolder.isOwner(event.getWhoClicked().getUniqueId())) {
@@ -100,7 +100,7 @@ public final class UtilityMenuListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory inventory = event.getInventory();
-        if (inventory.getHolder(false) instanceof OwnedMenuInventoryHolder guiHolder
+        if (inventory.getHolder() instanceof OwnedMenuInventoryHolder guiHolder
                 && guiHolder.getType() == UtilityMenuKind.TRASH_CONFIRM
                 && guiHolder.isOwner(event.getPlayer().getUniqueId())) {
             trashBoxSessionStore.clear(guiHolder.getOwner());

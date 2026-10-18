@@ -54,15 +54,12 @@ public final class MenuButtonItemFactory {
         List<Component> loreLines = List.of(lore);
 
         ItemStack item = new ItemStack(material);
-        boolean edited = item.editMeta(meta -> {
-            meta.displayName(name);
-            if (!loreLines.isEmpty()) {
-                meta.lore(loreLines);
-            }
-        });
-        if (!edited) {
-            throw new IllegalStateException("Could not create GUI item metadata for " + material + '.');
+        var meta = Objects.requireNonNull(item.getItemMeta(), "item metadata");
+        meta.setDisplayName(LegacyTextFormatter.serialize(name));
+        if (!loreLines.isEmpty()) {
+            meta.setLore(loreLines.stream().map(LegacyTextFormatter::serialize).toList());
         }
+        item.setItemMeta(meta);
         return item;
     }
 }

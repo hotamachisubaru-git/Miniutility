@@ -54,6 +54,12 @@ public final class LegacyTextFormatter {
                 .append(Objects.requireNonNull(message, "message"));
     }
 
+    public static String serialize(Component text) { return SECTION.serialize(text); }
+
+    public static void send(org.bukkit.command.CommandSender sender, Component text) {
+        sender.sendMessage(serialize(text));
+    }
+
     private static Component deserialize(LegacyComponentSerializer serializer, String text) {
         return text.isEmpty() ? Component.empty() : serializer.deserialize(text);
     }

@@ -102,8 +102,8 @@ public final class PlayerNicknameService {
         displaySnapshots.put(player.getUniqueId(), snapshot);
         Component displayName = snapshot.component();
         try {
-            player.displayName(displayName);
-            player.playerListName(displayName);
+            player.setDisplayName(LegacyTextFormatter.serialize(displayName));
+            player.setPlayerListName(LegacyTextFormatter.serialize(displayName));
         } catch (RuntimeException exception) {
             logger.log(Level.WARNING, "表示名の更新に失敗しました。", exception);
         }

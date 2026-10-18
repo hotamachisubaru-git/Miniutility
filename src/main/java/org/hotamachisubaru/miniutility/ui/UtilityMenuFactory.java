@@ -68,7 +68,7 @@ public final class UtilityMenuFactory {
     private static Inventory createInventory(UtilityMenuKind type, UUID owner) {
         OwnedMenuInventoryHolder holder = new OwnedMenuInventoryHolder(type, owner);
         Inventory inventory = Objects.requireNonNull(Bukkit.createInventory(
-                holder, type.getSize(), LegacyTextFormatter.text(type.getTitle())
+                holder, type.getSize(), type.getTitle()
         ));
         holder.bind(inventory);
         type.getButtons().forEach((slot, button) -> inventory.setItem(slot, MenuButtonItemFactory.createGuiItem(button)));

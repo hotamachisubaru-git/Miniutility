@@ -1,7 +1,7 @@
 package org.hotamachisubaru.miniutility.commands;
 
-import io.papermc.paper.command.brigadier.BasicCommand;
-import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.command.TabExecutor;
+import org.bukkit.command.Command;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,7 +31,7 @@ public final class UtilityCommandHandlers {
     }
 
     /** 各登録名に対応するアダプターを作り、名前・権限・補完を同じ定義で処理する。 */
-    public BasicCommand commandAdapter(String commandName) {
+    public NamedCommand commandAdapter(String commandName) {
         String name = Objects.requireNonNull(commandName, "commandName").toLowerCase(Locale.ROOT);
         if (!List.of("menu", "load", "prefixtoggle").contains(name)) {
             throw new IllegalArgumentException("Unknown Miniutility command: " + commandName);
@@ -41,7 +41,7 @@ public final class UtilityCommandHandlers {
 
     private void openMenu(CommandSender sender) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(LegacyTextFormatter.text("プレイヤーのみ使用できます。", NamedTextColor.RED));
+            LegacyTextFormatter.send(sender, LegacyTextFormatter.text("プレイヤーのみ使用できます。", NamedTextColor.RED));
             return;
         }
 
@@ -51,34 +51,34 @@ public final class UtilityCommandHandlers {
     private void reloadNicknames(CommandSender sender) {
         try {
             plugin.getNicknameManager().reload();
-            sender.sendMessage(LegacyTextFormatter.text("ニックネームデータを再読み込みしました。", NamedTextColor.GREEN));
+            LegacyTextFormatter.send(sender, LegacyTextFormatter.text("ニックネームデータを再読み込みしました。", NamedTextColor.GREEN));
         } catch (RuntimeException exception) {
             plugin.getLogger().log(Level.SEVERE, "ニックネームデータの再読み込みに失敗しました。", exception);
-            sender.sendMessage(LegacyTextFormatter.text("ニックネームデータの再読み込みに失敗しました。", NamedTextColor.RED));
+            LegacyTextFormatter.send(sender, LegacyTextFormatter.text("ニックネームデータの再読み込みに失敗しました。", NamedTextColor.RED));
         }
     }
 
     private void configurePrefix(CommandSender sender, String[] arguments) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(LegacyTextFormatter.text("プレイヤーのみ実行可能です。", NamedTextColor.RED));
+            LegacyTextFormatter.send(sender, LegacyTextFormatter.text("プレイヤーのみ実行可能です。", NamedTextColor.RED));
             return;
         }
 
         if (arguments.length > 1 || (arguments.length == 1
                 && PREFIX_OPTIONS.stream().noneMatch(option -> option.equalsIgnoreCase(arguments[0])))) {
-            sender.sendMessage(LegacyTextFormatter.text(PREFIX_USAGE, NamedTextColor.RED));
+            LegacyTextFormatter.send(sender, LegacyTextFormatter.text(PREFIX_USAGE, NamedTextColor.RED));
             return;
         }
 
         try {
             boolean enabled = resolvePrefixState(player, arguments);
-            player.sendMessage(LegacyTextFormatter.text(
+            LegacyTextFormatter.send(player, LegacyTextFormatter.text(
                     "プレフィックスの表示が " + (enabled ? "有効" : "無効") + " になりました。",
                     NamedTextColor.GREEN
             ));
         } catch (RuntimeException exception) {
             plugin.getLogger().log(Level.SEVERE, "プレフィックスの表示設定の変更に失敗しました。", exception);
-            sender.sendMessage(LegacyTextFormatter.text("プレフィックスの表示設定の変更に失敗しました。", NamedTextColor.RED));
+            LegacyTextFormatter.send(sender, LegacyTextFormatter.text("プレフィックスの表示設定の変更に失敗しました。", NamedTextColor.RED));
         }
     }
 
@@ -104,7 +104,7 @@ public final class UtilityCommandHandlers {
     }
 
     @NullMarked
-    private final class NamedCommand implements BasicCommand {
+    public final class NamedCommand implements TabExecutor {
 
         private final String name;
 
@@ -112,12 +112,10 @@ public final class UtilityCommandHandlers {
             this.name = name;
         }
 
-        @Override
-        public void execute(CommandSourceStack source, String[] arguments) {
-            CommandSender sender = source.getSender();
+        public void execute(CommandSender sender, String[] arguments) {
             // /execute の実行対象ではなく、従来どおり実際のコマンド送信者を操作する。
             if (!canUse(sender)) {
-                sender.sendMessage(LegacyTextFormatter.text("このコマンドを使用する権限がありません。", NamedTextColor.RED));
+                LegacyTextFormatter.send(sender, LegacyTextFormatter.text("このコマンドを使用する権限がありません。", NamedTextColor.RED));
                 return;
             }
             switch (name) {
@@ -128,16 +126,30 @@ public final class UtilityCommandHandlers {
             }
         }
 
-        @Override
-        public Collection<String> suggest(CommandSourceStack source, String[] arguments) {
-            if (!canUse(source.getSender()) || !name.equals("prefixtoggle") || arguments.length > 1) {
+        public Collection<String> suggest(CommandSender sender, String[] arguments) {
+            if (!canUse(sender) || !name.equals("prefixtoggle") || arguments.length > 1) {
                 return Objects.requireNonNull(List.of());
             }
             String prefix = arguments.length == 0 ? "" : arguments[0].toLowerCase(Locale.ROOT);
             return Objects.requireNonNull(PREFIX_OPTIONS.stream().filter(option -> option.startsWith(prefix)).toList());
         }
 
+        public boolean canUse(CommandSender sender) {
+            String permission = permission();
+            return permission == null || sender.hasPermission(permission);
+        }
+
         @Override
+        public boolean onCommand(CommandSender sender, Command command, String label, String[] arguments) {
+            execute(sender, arguments);
+            return true;
+        }
+
+        @Override
+        public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] arguments) {
+            return List.copyOf(suggest(sender, arguments));
+        }
+
         public @Nullable String permission() {
             return name.equals("load") ? LOAD_PERMISSION : null;
         }

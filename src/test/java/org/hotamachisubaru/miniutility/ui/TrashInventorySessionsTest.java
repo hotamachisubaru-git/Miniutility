@@ -90,7 +90,7 @@ final class TrashInventorySessionsTest {
     private static Inventory trashInventory(UUID owner) {
         Inventory inventory = mock(Inventory.class);
         when(inventory.getSize()).thenReturn(54);
-        when(inventory.getHolder(false)).thenReturn(new OwnedMenuInventoryHolder(UtilityMenuKind.TRASH, owner));
+        when(inventory.getHolder()).thenReturn(new OwnedMenuInventoryHolder(UtilityMenuKind.TRASH, owner));
         return inventory;
     }
 }

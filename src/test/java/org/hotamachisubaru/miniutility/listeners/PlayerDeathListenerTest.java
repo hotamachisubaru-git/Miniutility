@@ -37,7 +37,7 @@ class PlayerDeathListenerTest {
 
         verify(store).record(eq(playerId), any(Location.class));
         assertEquals(1, recordedLocations.size());
-        Location saved = recordedLocations.getFirst();
+        Location saved = recordedLocations.get(0);
         assertSame(world, saved.getWorld());
         assertEquals(-2, saved.getX());
         assertEquals(-5, saved.getY());
@@ -50,8 +50,8 @@ class PlayerDeathListenerTest {
 
     @Test
     void cancelledDeathDoesNotReplaceTheStoredDeathPoint() {
-        PlayerDeathEvent event = mock(PlayerDeathEvent.class);
-        when(event.isCancelled()).thenReturn(true);
+        PlayerDeathEvent event = mock(PlayerDeathEvent.class, withSettings().extraInterfaces(org.bukkit.event.Cancellable.class));
+        when(((org.bukkit.event.Cancellable) event).isCancelled()).thenReturn(true);
         PlayerDeathLocations store = mock(PlayerDeathLocations.class);
 
         new PlayerDeathListener(store).onPlayerDeath(event);

@@ -1,6 +1,6 @@
 package org.hotamachisubaru.miniutility;
 
-import io.papermc.paper.plugin.configuration.PluginMeta;
+import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -32,9 +32,9 @@ class ReleaseUpdateNotifierLifecycleTest {
     @BeforeEach
     void setUp() {
         plugin = mock(Plugin.class);
-        PluginMeta metadata = mock(PluginMeta.class);
+        PluginDescriptionFile metadata = mock(PluginDescriptionFile.class);
         when(metadata.getVersion()).thenReturn("26.3");
-        when(plugin.getPluginMeta()).thenReturn(metadata);
+        when(plugin.getDescription()).thenReturn(metadata);
         when(plugin.isEnabled()).thenReturn(true);
         logger = mock(Logger.class);
         when(plugin.getLogger()).thenReturn(logger);
@@ -82,7 +82,7 @@ class ReleaseUpdateNotifierLifecycleTest {
             verify(scheduler).runTask(eq(plugin), any(Runnable.class));
 
             checker.stop();
-            notifications.getLast().run();
+            notifications.get(notifications.size() - 1).run();
 
             bukkit.verify(Bukkit::getOnlinePlayers, never());
             verifyNoInteractions(logger);
@@ -132,10 +132,10 @@ class ReleaseUpdateNotifierLifecycleTest {
             firstRequest.complete(newerRelease());
             verify(operator, never()).sendMessage(anyString());
 
-            notifications.getLast().run();
+            notifications.get(notifications.size() - 1).run();
             checker.checkNow();
             secondRequest.complete(newerRelease());
-            notifications.getLast().run();
+            notifications.get(notifications.size() - 1).run();
 
             verify(operator).sendMessage(contains("新しいバージョン 26.4"));
             verify(regularPlayer, never()).sendMessage(anyString());
@@ -158,7 +158,7 @@ class ReleaseUpdateNotifierLifecycleTest {
             checker.start();
             checker.checkNow();
             previousRequest.complete(newerRelease());
-            Runnable previousNotification = notifications.getLast();
+            Runnable previousNotification = notifications.get(notifications.size() - 1);
 
             checker.stop();
             checker.start();
@@ -169,7 +169,7 @@ class ReleaseUpdateNotifierLifecycleTest {
 
             checker.checkNow();
             currentRequest.complete(newerRelease());
-            notifications.getLast().run();
+            notifications.get(notifications.size() - 1).run();
             verify(logger).info(contains("新しいバージョン 26.4"));
             checker.stop();
         }

@@ -20,7 +20,7 @@ public final class PlayerDeathListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if (event.isCancelled()) {
+        if (event instanceof org.bukkit.event.Cancellable cancellable && cancellable.isCancelled()) {
             return;
         }
         Player player = event.getEntity();

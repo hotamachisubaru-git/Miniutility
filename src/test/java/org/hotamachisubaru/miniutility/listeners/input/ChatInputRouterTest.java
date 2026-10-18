@@ -25,9 +25,9 @@ class ChatInputRouterTest {
         router.handle(player, ChatInputMode.EXPERIENCE, "-99");
         verifyNoInteractions(player, manager);
         when(player.getLevel()).thenReturn(8, 0);
-        tasks.getFirst().run();
+        tasks.get(0).run();
         verify(player).giveExpLevels(-8);
-        verify(player).sendMessage(any(net.kyori.adventure.text.Component.class));
+        verify(player).sendMessage(anyString());
     }
 
     @Test
@@ -50,7 +50,7 @@ class ChatInputRouterTest {
         router.handle(player, ChatInputMode.EXPERIENCE, "2147483648", action -> completions.incrementAndGet());
         assertEquals(0, completions.get());
         assertEquals(1, errors.size());
-        assertTrue(errors.getFirst().text().contains("数値"));
+        assertTrue(errors.get(0).text().contains("数値"));
         verifyNoInteractions(player);
     }
 
@@ -63,7 +63,7 @@ class ChatInputRouterTest {
                 (target, message) -> fail());
         router.handle(player, ChatInputMode.COLORED_NICKNAME, "&bほしまち", completions::add);
         verifyNoInteractions(manager, player);
-        completions.getFirst().run();
+        completions.get(0).run();
         verify(manager).setNickname(player, LegacyTextFormatter.ampersandToSection("&bほしまち"));
     }
 }

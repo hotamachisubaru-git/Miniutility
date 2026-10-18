@@ -70,7 +70,7 @@ final class UtilityMenuActionsTest {
         try (Fixture fixture = new Fixture()) {
             fixture.actions.scheduleClick(fixture.player, fixture.inventory, -1);
             fixture.actions.scheduleClick(fixture.player, fixture.inventory, 1);
-            when(fixture.inventory.getHolder(false)).thenReturn(new OwnedMenuInventoryHolder(UtilityMenuKind.MENU, UUID.randomUUID()));
+            when(fixture.inventory.getHolder()).thenReturn(new OwnedMenuInventoryHolder(UtilityMenuKind.MENU, UUID.randomUUID()));
             fixture.actions.scheduleClick(fixture.player, fixture.inventory, 4);
 
             assertTrue(fixture.tasks.isEmpty());
@@ -97,19 +97,19 @@ final class UtilityMenuActionsTest {
 
     @Test
     void doesNotSendAnOldTeleportResultToADisconnectedPlayer() {
-        try (Fixture fixture = new Fixture()) {
+        try (Fixture fixture = new Fixture(); var compatibility = mockStatic(org.hotamachisubaru.miniutility.util.ServerCompatibility.class)) {
             Location death = mock(Location.class);
             CompletableFuture<Boolean> result = new CompletableFuture<>();
-            when(death.isWorldLoaded()).thenReturn(true);
+            when(death.getWorld()).thenReturn(mock(org.bukkit.World.class));
             when(fixture.deaths.find(fixture.owner)).thenReturn(Optional.of(death));
-            when(fixture.player.teleportAsync(death)).thenReturn(result);
+            compatibility.when(() -> org.hotamachisubaru.miniutility.util.ServerCompatibility.teleport(fixture.player, death)).thenReturn(result);
 
             fixture.actions.handleMenuClick(fixture.player, item(Material.ARMOR_STAND));
             when(fixture.player.isOnline()).thenReturn(false);
             result.complete(true);
             fixture.runNextTask();
 
-            verify(fixture.player, never()).sendMessage(any(net.kyori.adventure.text.Component.class));
+            verify(fixture.player, never()).sendMessage(anyString());
         }
     }
 
@@ -146,7 +146,7 @@ final class UtilityMenuActionsTest {
             when(player.getOpenInventory()).thenReturn(view);
             when(player.getGameMode()).thenReturn(GameMode.SURVIVAL);
             when(view.getTopInventory()).thenReturn(inventory);
-            when(inventory.getHolder(false)).thenReturn(new OwnedMenuInventoryHolder(UtilityMenuKind.MENU, owner));
+            when(inventory.getHolder()).thenReturn(new OwnedMenuInventoryHolder(UtilityMenuKind.MENU, owner));
             ItemStack compass = item(Material.COMPASS);
             when(inventory.getItem(4)).thenReturn(compass);
             when(scheduler.runTask(eq(plugin), any(Runnable.class))).thenAnswer(invocation -> {
@@ -167,7 +167,7 @@ final class UtilityMenuActionsTest {
 
         private void runNextTask() {
             assertFalse(tasks.isEmpty());
-            tasks.removeFirst().run();
+            tasks.remove(0).run();
         }
 
         @Override
