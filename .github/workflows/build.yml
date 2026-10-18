@@ -1,5 +1,9 @@
 name: Forge builds
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [forge]
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:

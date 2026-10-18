@@ -1,12 +1,14 @@
 # Miniutility — Forge
 
+[**JARのダウンロード（GitHub Releases）**](https://github.com/hotamachisubaru-git/Miniutility/releases/tag/26.3.1)
+
 このブランチは Forge MOD です。Paper/Spigot 版は [master](https://github.com/hotamachisubaru-git/Miniutility/tree/master)、Fabric 版は fabric ブランチで管理します。
 
 ## 対応版
 
 Minecraft 1.20.1〜26.3 のうち Forge の配布が存在する21版を、`versions.json` に固定しています。Minecraft の版ごとに別の JAR をビルドします。異なる版の JAR は流用しないでください。
 
-[CI](https://github.com/hotamachisubaru-git/Miniutility/actions/runs/39092248439)で21版すべてのビルドと共通テストが成功しています。実サーバー起動・ゲーム内の全GUI操作は未検証です。
+[CI](https://github.com/hotamachisubaru-git/Miniutility/actions/workflows/build.yml?query=branch%3Aforge)で21版すべてのビルドと共通テストが成功しています。実サーバー起動・ゲーム内の全GUI操作は未検証です。
 
 ## 導入
 
