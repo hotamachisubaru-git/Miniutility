@@ -1,39 +1,101 @@
+# この設定は既定ブランチ master から全プラットフォームを管理します。
 version: 2
 updates:
-  # Maven 依存関係（Paper/LuckPerms/Adventure などもここで検知）
   - package-ecosystem: "maven"
-    directory: "/"                 # pom.xml がリポジトリ直下にある前提
+    directory: "/"
     schedule:
-      interval: "daily"           # daily / weekly / monthly
-      day: "monday"                # 週次の基準日（任意）
-      time: "00:00"                # UTC（日本時間+9h）→ JST 18:00 に相当
+      interval: "daily"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees: ["hotamachisubaru-git"]
+    labels: ["dependencies"]
     open-pull-requests-limit: 10
-    # PR のメタ情報（任意）
-    labels: ["dependencies", "maven"]
-    reviewers: ["minamikana-git,hotamachisubaru-git"]  # レビュアー GitHub ユーザー名
-    assignees: ["minamikana-git,hotamachisubaru-git"]  # 担当者 GitHub ユーザー名
-    # まとめて更新（任意）：レビュー本数を減らせます
     groups:
       testing:
-        patterns: ["junit*", "org.mockito*"]
-      spring:
-        patterns: ["org.springframework.*"]
+        patterns: ["org.junit.*", "org.mockito:*"]
       adventure:
-        patterns: ["net.kyori.*"]
-      minecraft:
-        patterns: ["io.papermc.paper*", "com.destroystokyo.paper*"]
-    # 上げたくないものを除外（任意）
+        patterns: ["net.kyori:*"]
     ignore:
-      - dependency-name: "org.springframework.boot"
-        versions: ["3.x"]          # 例：3系は据え置き
-      - dependency-name: "io.papermc.paper"
-        update-types: ["version-update:semver-major"]  # メジャーは無視
-      - dependency-name: "net.kyori:adventure-api"
+      # Minecraftの版は versions.json と一緒に手動更新します。
+      - dependency-name: "org.spigotmc:spigot-api"
+      - dependency-name: "net.kyori:*"
         update-types: ["version-update:semver-major"]
 
-  # GitHub Actions（ワークフローの Action も更新対象に）
+  - package-ecosystem: "gradle"
+    directories: ["/versions/*"]
+    target-branch: "forge"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees: ["hotamachisubaru-git"]
+    labels: ["dependencies"]
+    # Minecraft・ローダー・Gradleは版ごとの対応関係があるため手動更新します。
+    allow:
+      - dependency-name: "org.junit.*"
+      - dependency-name: "net.luckperms:api"
+    groups:
+      testing:
+        patterns: ["org.junit.*"]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "gradle"
+    directories: ["/versions/*"]
+    target-branch: "fabric"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees: ["hotamachisubaru-git"]
+    labels: ["dependencies"]
+    # Minecraft・ローダー・Gradleは版ごとの対応関係があるため手動更新します。
+    allow:
+      - dependency-name: "org.junit.*"
+      - dependency-name: "net.luckperms:api"
+    groups:
+      testing:
+        patterns: ["org.junit.*"]
+    open-pull-requests-limit: 5
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    labels: ["dependencies", "ci"]
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees: ["hotamachisubaru-git"]
+    labels: ["dependencies"]
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "forge"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees: ["hotamachisubaru-git"]
+    labels: ["dependencies"]
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "fabric"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees: ["hotamachisubaru-git"]
+    labels: ["dependencies"]
+    groups:
+      actions:
+        patterns: ["*"]
