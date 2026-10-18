@@ -1,2 +1,7 @@
-target/
-dependency-reduced-pom.xml
+**/build/
+**/.gradle/
+**/run/
+**/run-data/
+.idea/
+.vscode/
+*.iml
