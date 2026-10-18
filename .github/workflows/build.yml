@@ -13,7 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: matrix
-        run: echo "versions=$(jq -c '{include: map(. + {gradleJava:(if .gradle == 7 then 25 else .java end)})}' versions.json)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "versions=$(jq -c '{include: map(. + {gradleJava:(if .gradle == 7 then 25 else .java end)})}' versions.json)" >> "$GITHUB_OUTPUT"
   build:
     needs: matrix
     runs-on: ubuntu-latest
