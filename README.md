@@ -10,6 +10,8 @@
 | `forge` | Forge MOD | `mods` |
 | `fabric` | Fabric MOD | `mods` |
 
+Forge・Fabric の API・ローダーバージョンは、[Forge の対応表](https://github.com/hotamachisubaru-git/Miniutility/blob/forge/README.md#forge-api-バージョン)・[Fabric の対応表](https://github.com/hotamachisubaru-git/Miniutility/blob/fabric/README.md#fabric-apiloader-バージョン)を参照してください。
+
 ## 対応版と導入
 
 Minecraft 1.20.1〜26.3 の23版を `versions.json` に定義しています。対象版の Paper または Spigot と、**同じ Minecraft 版用の JAR** を使用してください。バージョン間の Bukkit API のバイナリ差異に合わせ、版ごとにコンパイルします。Folia は対象外です。
