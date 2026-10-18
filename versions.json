@@ -1,5 +1,19 @@
 [
   {
+    "minecraft": "1.21.6",
+    "forge": "56.0.9",
+    "java": 21,
+    "gradle": 6,
+    "eventBus": 7
+  },
+  {
+    "minecraft": "1.21.7",
+    "forge": "57.0.3",
+    "java": 21,
+    "gradle": 6,
+    "eventBus": 7
+  },
+  {
     "minecraft": "26.3",
     "forge": "66.0.13",
     "java": 25,
@@ -60,20 +74,6 @@
     "forge": "58.1.26",
     "java": 21,
     "gradle": 7,
-    "eventBus": 7
-  },
-  {
-    "minecraft": "1.21.7",
-    "forge": "57.0.3",
-    "java": 21,
-    "gradle": 6,
-    "eventBus": 7
-  },
-  {
-    "minecraft": "1.21.6",
-    "forge": "56.0.9",
-    "java": 21,
-    "gradle": 6,
     "eventBus": 7
   },
   {
