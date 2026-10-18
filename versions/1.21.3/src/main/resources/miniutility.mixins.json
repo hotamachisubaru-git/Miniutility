@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "org.hotamachisubaru.miniutility.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "PlayerNameMixin",
+    "TabNameMixin",
+    "ExplosionMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,6 +1,7 @@
-target/
-dependency-reduced-pom.xml
-test-server/*
-server/*
-.gitignore
-todos.json
+**/build/
+**/.gradle/
+**/run/
+**/run-data/
+.idea/
+.vscode/
+*.iml

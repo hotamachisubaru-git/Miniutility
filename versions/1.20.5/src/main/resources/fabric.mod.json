@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "miniutility",
+  "version": "26.3.1",
+  "name": "Miniutility",
+  "description": "メニュー、死亡地点ワープ、ニックネームなどの便利機能。",
+  "authors": [
+    "hotamachisubaru"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "org.hotamachisubaru.miniutility.fabric.MiniutilityFabric"
+    ]
+  },
+  "mixins": [
+    "miniutility.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.20.0",
+    "minecraft": "1.20.5",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "luckperms": "*"
+  }
+}
