@@ -68,6 +68,9 @@ updates:
       timezone: "Asia/Tokyo"
     assignees: ["hotamachisubaru-git"]
     labels: ["dependencies"]
+    # Gradle Actionは利用条件を確認したうえで手動更新します。
+    ignore:
+      - dependency-name: "gradle/actions"
     groups:
       actions:
         patterns: ["*"]
@@ -82,6 +85,9 @@ updates:
       timezone: "Asia/Tokyo"
     assignees: ["hotamachisubaru-git"]
     labels: ["dependencies"]
+    # Gradle Actionは利用条件を確認したうえで手動更新します。
+    ignore:
+      - dependency-name: "gradle/actions"
     groups:
       actions:
         patterns: ["*"]
@@ -96,6 +102,9 @@ updates:
       timezone: "Asia/Tokyo"
     assignees: ["hotamachisubaru-git"]
     labels: ["dependencies"]
+    # Gradle Actionは利用条件を確認したうえで手動更新します。
+    ignore:
+      - dependency-name: "gradle/actions"
     groups:
       actions:
         patterns: ["*"]

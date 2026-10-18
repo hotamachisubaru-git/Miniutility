@@ -1,5 +1,9 @@
 name: Fabric builds
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [fabric]
+  pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
