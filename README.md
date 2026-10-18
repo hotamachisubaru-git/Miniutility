@@ -44,6 +44,6 @@ mvn -B -ntp verify -Dminecraft.version=26.3 -Dspigot.version=26.3-R0.1-SNAPSHOT 
 
 Spigot APIを基準に実装し、Paper の非同期テレポートは利用可能な場合だけ呼び出します。コマンドは `plugin.yml` と Bukkit の標準登録を使用します。`common/` は MOD版と共有する入力検証・保存・セッションのロジックです。
 
-既存の103件に共有ロジック7件を加えた110件のテストを実行します。1.20.1と26.3のローカルテストは成功しています。今回の変更について、Minecraftクライアントによる全GUI操作は未検証です。
+既存の103件に共有ロジック7件を加えた110件のテストを実行します。[CI](https://github.com/hotamachisubaru-git/Miniutility/actions/runs/39091138441)で対象23版すべてのビルドとテストが成功しています。今回の変更について、Minecraftクライアントによる全GUI操作は未検証です。
 
 対象版を追加する場合は `versions.json` のMinecraft版・Spigot API・Java・Bukkit api-versionを更新し、Actionsの成功を確認してください。旧Paper専用の自動バージョン更新は版別ビルドへ置き換えました。
