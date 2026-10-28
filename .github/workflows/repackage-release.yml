@@ -1,0 +1,36 @@
+name: Repackage 26.3.1 as ZIP
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/release-packaging/26.3.1.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: repackage-release-26.3.1
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'hotamachisubaru-git/Miniutility' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Test release publication guards
+        run: python3 -m unittest discover -s scripts -p 'test_release_archives.py'
+      - name: Verify JARs, upload ZIPs, then remove individual JAR assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/publish_release_archives.py --publish
+      - name: Retain packaging validation
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-packaging-validation
+          path: .release-packaging/validation.json
+          if-no-files-found: warn

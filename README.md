@@ -2,6 +2,16 @@
 
 [**JARのダウンロード（GitHub Releases）**](https://github.com/hotamachisubaru-git/Miniutility/releases/tag/26.3.1)
 
+配布はプラットフォームごとのZIPにまとめています。ZIPを解凍し、`jars`から**お使いのMinecraft版に一致するJARを1個だけ**選んでください。
+
+| ZIPファイル | 同梱JAR |
+| --- | --- |
+| `Miniutility-paper-spigot-26.3.1.zip` | Paper / Spigot用・23版 |
+| `Miniutility-forge-26.3.1.zip` | Forge用・21版（1.20.5・1.21.2を除く） |
+| `Miniutility-fabric-26.3.1.zip` | Fabric用・23版 |
+
+ZIPには導入説明・API対応表・ライセンス・JARのチェックサムを同梱しています。リリース直下の `SHA256SUMS.txt` は3つのZIP用です。ZIP自体や全JARをまとめてサーバーへ入れないでください。
+
 死亡地点へのワープ、経験値・ゲームモードの操作、クリーパーのブロック破壊防止、エンダーチェスト、確認付きゴミ箱、ニックネーム、どこでも作業台をメニューから利用できます。
 
 | ブランチ | 実装 | 導入先 |
@@ -59,3 +69,9 @@ Spigot APIを基準に実装し、Paper の非同期テレポートは利用可�
 既存の103件に共有ロジック7件を加えた110件のテストを実行します。[CI](https://github.com/hotamachisubaru-git/Miniutility/actions/workflows/build.yml?query=branch%3Amaster)で対象23版すべてのビルドとテストが成功しています。今回の変更について、Minecraftクライアントによる全GUI操作は未検証です。
 
 対象版を追加する場合は `versions.json` のMinecraft版・Spigot API・Java・Bukkit api-versionを更新し、Actionsの成功を確認してください。旧Paper専用の自動バージョン更新は版別ビルドへ置き換えました。
+
+### 26.3.1 のZIP再梱包
+
+`Repackage 26.3.1 as ZIP` ワークフローは、公開済みの67個のJARを変更せず3つのZIPへまとめます。対象アセットのID・サイズ・SHA-256と、ドキュメント取得元のコミットは `.github/release-packaging/26.3.1.json` に固定しています。
+
+新しいZIPとチェックサムをアップロードし、再ダウンロードして照合した後、説明文を更新して個別JARを削除します。検証失敗や想定外の変更があれば停止します。途中で失敗した場合は、Actionsから同じワークフローを再実行できます。既存リリースとタグは維持します。

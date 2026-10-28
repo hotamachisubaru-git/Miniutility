@@ -1,0 +1,421 @@
+{
+  "repository": "hotamachisubaru-git/Miniutility",
+  "tag": "26.3.1",
+  "release_id": 416212086,
+  "source_refs": {
+    "master": "d0fd8073d2063ef93a866d3cdacacb99f74a7079",
+    "forge": "b74417285ca19f5479b01e76175814a93c868454",
+    "fabric": "5be7077bdbc1c06f8f071e81ad7d86ad08023ac3"
+  },
+  "assets": [
+    {
+      "id": 652382565,
+      "name": "Miniutility-fabric-1.20.1-26.3.1.jar",
+      "size": 41249,
+      "digest": "sha256:032992284e436178679dac98f25852708d882be08be426ee90ac12a5d44dafa0"
+    },
+    {
+      "id": 652381689,
+      "name": "Miniutility-fabric-1.20.2-26.3.1.jar",
+      "size": 41251,
+      "digest": "sha256:694c2174bb37e22cabdad42195a0b49c596060f0a3fc998d58f019ea53e43c63"
+    },
+    {
+      "id": 652381667,
+      "name": "Miniutility-fabric-1.20.3-26.3.1.jar",
+      "size": 41251,
+      "digest": "sha256:9342b678093929e304244a022bd391a8d8e093798a8d4a3de05a758c927f803d"
+    },
+    {
+      "id": 652381547,
+      "name": "Miniutility-fabric-1.20.4-26.3.1.jar",
+      "size": 41251,
+      "digest": "sha256:6f4cef9d9e09995d39cf077cbc5a11cc3fa3ecd021eb865bc8471998ba0b32b0"
+    },
+    {
+      "id": 652381733,
+      "name": "Miniutility-fabric-1.20.5-26.3.1.jar",
+      "size": 41297,
+      "digest": "sha256:fdea274bd71442f0e3c7127271693649d44992a6e15ad7dba84070b407f2bc93"
+    },
+    {
+      "id": 652381510,
+      "name": "Miniutility-fabric-1.20.6-26.3.1.jar",
+      "size": 41296,
+      "digest": "sha256:14a23e507d6e9c2aea2eb11f6d144d1847f698586c4b68b6abb47283980285e7"
+    },
+    {
+      "id": 652381055,
+      "name": "Miniutility-fabric-1.21-26.3.1.jar",
+      "size": 41293,
+      "digest": "sha256:985df62f58c24cb3fa398aabd85d45c70c56a2eaa2ce45cfc034214a0c3abf01"
+    },
+    {
+      "id": 652381822,
+      "name": "Miniutility-fabric-1.21.1-26.3.1.jar",
+      "size": 41297,
+      "digest": "sha256:b45d3a8817ed2d6db988f02442f0e352041273886d44c8ee327e946e2a3a352b"
+    },
+    {
+      "id": 652381524,
+      "name": "Miniutility-fabric-1.21.10-26.3.1.jar",
+      "size": 41380,
+      "digest": "sha256:b6c0a5b186c81098f68699433147caf1164f918ed2076bbcbedbfd0a5ab01bf1"
+    },
+    {
+      "id": 652380979,
+      "name": "Miniutility-fabric-1.21.11-26.3.1.jar",
+      "size": 41455,
+      "digest": "sha256:4e2111b86caab8677b62be1efee701986b0e3bb4a21297e34521dd4e09727eda"
+    },
+    {
+      "id": 652381804,
+      "name": "Miniutility-fabric-1.21.2-26.3.1.jar",
+      "size": 41384,
+      "digest": "sha256:3905095e8ce90a436b2551c5858969a6c867b9a00a86e1c48a13629113769a7a"
+    },
+    {
+      "id": 652381070,
+      "name": "Miniutility-fabric-1.21.3-26.3.1.jar",
+      "size": 41385,
+      "digest": "sha256:6b352b5cc2d97304d3a4c3b1a9ea9d85dfc4dd936837d550909692b335aa7730"
+    },
+    {
+      "id": 652381453,
+      "name": "Miniutility-fabric-1.21.4-26.3.1.jar",
+      "size": 41385,
+      "digest": "sha256:08c22d283dc353d8e4c5434cd4622f14445d4b4c86d0e8ef4b041e259d85e6de"
+    },
+    {
+      "id": 652381708,
+      "name": "Miniutility-fabric-1.21.5-26.3.1.jar",
+      "size": 41385,
+      "digest": "sha256:4b4a211d4f3f65eb3ae7d4df8cc5d9702e61dc344093e69150e110d3c8ca9115"
+    },
+    {
+      "id": 652381780,
+      "name": "Miniutility-fabric-1.21.6-26.3.1.jar",
+      "size": 41382,
+      "digest": "sha256:2d12bf6fbd1d788d05bb9e7a095b311f85b4a5954b0b994d72f037f88d7bed27"
+    },
+    {
+      "id": 652381081,
+      "name": "Miniutility-fabric-1.21.7-26.3.1.jar",
+      "size": 41382,
+      "digest": "sha256:44e99ff0b779b1dbcc677cbe1e8b95719ed581d49c511a91d1b8e59b1c5b30ee"
+    },
+    {
+      "id": 652381567,
+      "name": "Miniutility-fabric-1.21.8-26.3.1.jar",
+      "size": 41382,
+      "digest": "sha256:d2761aa42176f3422cea97edfd2a4dc9c27a58f32bc5c5ad05994c22c59ec217"
+    },
+    {
+      "id": 652381032,
+      "name": "Miniutility-fabric-1.21.9-26.3.1.jar",
+      "size": 41382,
+      "digest": "sha256:89fade12dbdd0d7a434ec5eb9586cef125db83d5bf826556e8adbbcbfa687aaa"
+    },
+    {
+      "id": 652381592,
+      "name": "Miniutility-fabric-26.1-26.3.1.jar",
+      "size": 41899,
+      "digest": "sha256:d1ec72f71589ff2e68180e0b117b704012125b41c00e2c181cc93029e4bd86d5"
+    },
+    {
+      "id": 652381610,
+      "name": "Miniutility-fabric-26.1.1-26.3.1.jar",
+      "size": 41902,
+      "digest": "sha256:5fc890124dac774e33849b4b8c00d019d96b9c5957fe2f17b9e66248bd6889dd"
+    },
+    {
+      "id": 652381632,
+      "name": "Miniutility-fabric-26.1.2-26.3.1.jar",
+      "size": 41902,
+      "digest": "sha256:fdd9f2bc7e34de0c61169ed31994e23c9ed7550b118c20506196f5184daa89a4"
+    },
+    {
+      "id": 652381007,
+      "name": "Miniutility-fabric-26.2-26.3.1.jar",
+      "size": 41900,
+      "digest": "sha256:f46613fa120904c9177d9c67d5426b4a307965c3fa9b04d8b976ac46384b7982"
+    },
+    {
+      "id": 652381653,
+      "name": "Miniutility-fabric-26.3-26.3.1.jar",
+      "size": 41948,
+      "digest": "sha256:6567de41f731708dfd49aba2100f4b0667965096dba1364362cde9ac82e2e0f4"
+    },
+    {
+      "id": 652395389,
+      "name": "Miniutility-forge-1.20.1-26.3.1.jar",
+      "size": 37861,
+      "digest": "sha256:197df4b12ae7cc3e9dc99d276e366e4d25dd47423f8c5522c425b5ab7ecaa315"
+    },
+    {
+      "id": 652394469,
+      "name": "Miniutility-forge-1.20.2-26.3.1.jar",
+      "size": 37862,
+      "digest": "sha256:b7e8bba9320a8374dfed092cc32234fd227920e8745bfec1532830d1d765dc11"
+    },
+    {
+      "id": 652393500,
+      "name": "Miniutility-forge-1.20.3-26.3.1.jar",
+      "size": 37836,
+      "digest": "sha256:021d07090b2f540bb8ac31d1139d337e86653225e054511bee61283829346840"
+    },
+    {
+      "id": 652392433,
+      "name": "Miniutility-forge-1.20.4-26.3.1.jar",
+      "size": 37836,
+      "digest": "sha256:f7c0b3173e5a8418ab79138731ee0839830696daab827e38b2535f178602d7be"
+    },
+    {
+      "id": 652395379,
+      "name": "Miniutility-forge-1.20.6-26.3.1.jar",
+      "size": 37389,
+      "digest": "sha256:34d816a5b8372022b6a4e046ffc9ab7e4e3e42dde0f4fe810326cd86a9df4c52"
+    },
+    {
+      "id": 652387810,
+      "name": "Miniutility-forge-1.21-26.3.1.jar",
+      "size": 37477,
+      "digest": "sha256:8b0d19fee3c579641796ea3117be5eed27bc9b34e6ed61a49e64234a03404dd7"
+    },
+    {
+      "id": 652388950,
+      "name": "Miniutility-forge-1.21.1-26.3.1.jar",
+      "size": 37387,
+      "digest": "sha256:2dbaa4313cbc0ed637931a7b6ec882033d890aa1b601e6ae703b585fa322d15a"
+    },
+    {
+      "id": 652383965,
+      "name": "Miniutility-forge-1.21.10-26.3.1.jar",
+      "size": 37609,
+      "digest": "sha256:f9f9c064fe3ad8d65b1b0bbb6e35e6cd9b53ec6f4f8dd104c1fa35c91f368587"
+    },
+    {
+      "id": 652381852,
+      "name": "Miniutility-forge-1.21.11-26.3.1.jar",
+      "size": 37686,
+      "digest": "sha256:d418fcd7d98737e007ed947adc4353cc503013547e4552d57adeaf3e57a7d67e"
+    },
+    {
+      "id": 652391015,
+      "name": "Miniutility-forge-1.21.3-26.3.1.jar",
+      "size": 37432,
+      "digest": "sha256:75bae1b195bf5645631fff32c33d874363e1da2b232de3b73168fe7150b3117a"
+    },
+    {
+      "id": 652389864,
+      "name": "Miniutility-forge-1.21.4-26.3.1.jar",
+      "size": 37432,
+      "digest": "sha256:662b4e13ceae97299fcb486ba83d7d513b71276c3b390884a40f2ff59544abfa"
+    },
+    {
+      "id": 652387864,
+      "name": "Miniutility-forge-1.21.5-26.3.1.jar",
+      "size": 37433,
+      "digest": "sha256:0b13942f127e965b34f4a1fafee9ad854be99218ee2b97736772311038dc01ee"
+    },
+    {
+      "id": 652380008,
+      "name": "Miniutility-forge-1.21.6-26.3.1.jar",
+      "size": 37695,
+      "digest": "sha256:6d7725c8c8b2d8f26b067ef53a2ff585832d277940a62eefba6ae6aa42ac79d1"
+    },
+    {
+      "id": 652380029,
+      "name": "Miniutility-forge-1.21.7-26.3.1.jar",
+      "size": 37694,
+      "digest": "sha256:ffefdd54a7e37734c76e768c470c015ae3f3e0b940193127f53cb2aba3c19a19"
+    },
+    {
+      "id": 652387840,
+      "name": "Miniutility-forge-1.21.8-26.3.1.jar",
+      "size": 37601,
+      "digest": "sha256:4e717b6925a53dc577d96fb5eca99a4fb153b72e9e21dc95d483c16a03d50cba"
+    },
+    {
+      "id": 652382580,
+      "name": "Miniutility-forge-1.21.9-26.3.1.jar",
+      "size": 37702,
+      "digest": "sha256:bea6d6aba2ece0f59c8a179419f7f5d013935697b4fb5d394a4e0443ee41234f"
+    },
+    {
+      "id": 652382597,
+      "name": "Miniutility-forge-26.1-26.3.1.jar",
+      "size": 37846,
+      "digest": "sha256:5d68810d074c2f093cc3c926954d21a8afabd90a87dd8f988fe60f28f3764532"
+    },
+    {
+      "id": 652380051,
+      "name": "Miniutility-forge-26.1.1-26.3.1.jar",
+      "size": 37847,
+      "digest": "sha256:b44ad35e027e89e56ced12957190126eac72864d921ce26ec3c2a800f44db8c7"
+    },
+    {
+      "id": 652380702,
+      "name": "Miniutility-forge-26.1.2-26.3.1.jar",
+      "size": 37847,
+      "digest": "sha256:9c2d5ccd2386d775d315e429676e10a2b1f8b544adc0aba0b1bf8bd3d768fbf0"
+    },
+    {
+      "id": 652380736,
+      "name": "Miniutility-forge-26.2-26.3.1.jar",
+      "size": 37844,
+      "digest": "sha256:31b6c1edacdbb4e817cb75fc355d314d9624cbf0d0accea8c2b5bac0e0c26f07"
+    },
+    {
+      "id": 652381484,
+      "name": "Miniutility-forge-26.3-26.3.1.jar",
+      "size": 37887,
+      "digest": "sha256:74a90eefe4fa3031ed310a856fdbd4920a0fd7b5994f3f2339e1db5970104aad"
+    },
+    {
+      "id": 652373304,
+      "name": "Miniutility-paper-spigot-1.20.1-26.3.1.jar",
+      "size": 13022481,
+      "digest": "sha256:c22125c1a82cf91cd1a362d8f27c007540678f4d44545726042dd35001c0fcf4"
+    },
+    {
+      "id": 652373213,
+      "name": "Miniutility-paper-spigot-1.20.2-26.3.1.jar",
+      "size": 13022481,
+      "digest": "sha256:c22125c1a82cf91cd1a362d8f27c007540678f4d44545726042dd35001c0fcf4"
+    },
+    {
+      "id": 652373051,
+      "name": "Miniutility-paper-spigot-1.20.3-26.3.1.jar",
+      "size": 13022481,
+      "digest": "sha256:c22125c1a82cf91cd1a362d8f27c007540678f4d44545726042dd35001c0fcf4"
+    },
+    {
+      "id": 652373104,
+      "name": "Miniutility-paper-spigot-1.20.4-26.3.1.jar",
+      "size": 13022481,
+      "digest": "sha256:c22125c1a82cf91cd1a362d8f27c007540678f4d44545726042dd35001c0fcf4"
+    },
+    {
+      "id": 652373259,
+      "name": "Miniutility-paper-spigot-1.20.5-26.3.1.jar",
+      "size": 13022496,
+      "digest": "sha256:e11eec10f687fe95e3819dabbea78530eed678c0c86cee8ee8185b3e152fdfeb"
+    },
+    {
+      "id": 652379968,
+      "name": "Miniutility-paper-spigot-1.20.6-26.3.1.jar",
+      "size": 13022496,
+      "digest": "sha256:61b6a4af03ec20bbc36e47a7a151f670cebfba20fad44238b604b9e5db1451d5"
+    },
+    {
+      "id": 652378169,
+      "name": "Miniutility-paper-spigot-1.21-26.3.1.jar",
+      "size": 13022498,
+      "digest": "sha256:32f013fc53cb2b4d2e9320292cb0cea93ed7840995212345ff0ad1b0c2700fb2"
+    },
+    {
+      "id": 652373158,
+      "name": "Miniutility-paper-spigot-1.21.1-26.3.1.jar",
+      "size": 13022499,
+      "digest": "sha256:1a7567ab677943f94b15fc110cfe65c922faec023be8712b921fdbc3551155e4"
+    },
+    {
+      "id": 652378279,
+      "name": "Miniutility-paper-spigot-1.21.10-26.3.1.jar",
+      "size": 13022502,
+      "digest": "sha256:62cd8c780af458e1963d31d8bb952f558df09867419b7025b10a25a1a695ba97"
+    },
+    {
+      "id": 652380817,
+      "name": "Miniutility-paper-spigot-1.21.11-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:1779384df324502b7a1d44d533041acc2e037ce0a147f36aceee16a181d7254c"
+    },
+    {
+      "id": 652379414,
+      "name": "Miniutility-paper-spigot-1.21.2-26.3.1.jar",
+      "size": 13022500,
+      "digest": "sha256:0a6e36da2173b83c5e320e6cf9e6263a45d1123a9cb7232245c216569c29c13f"
+    },
+    {
+      "id": 652379513,
+      "name": "Miniutility-paper-spigot-1.21.3-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:ccd41be8cd03f58e09b98e3a5dd66050bf8a3910144bcfbd31d42311bca303b9"
+    },
+    {
+      "id": 652379552,
+      "name": "Miniutility-paper-spigot-1.21.4-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:59425b00133d471e72add54cecf32663c53a938e0971aa85571f44c1332592f5"
+    },
+    {
+      "id": 652378131,
+      "name": "Miniutility-paper-spigot-1.21.5-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:7194b2a278d912279fd6b4520ba1b4d098c1d9d79b7b562b14f65bd9029775f5"
+    },
+    {
+      "id": 652379381,
+      "name": "Miniutility-paper-spigot-1.21.6-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:16e7541db04ee29800642465d05c3b0a1ee9a986a2f8a76363eb6fe0346d36a2"
+    },
+    {
+      "id": 652380941,
+      "name": "Miniutility-paper-spigot-1.21.7-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:aef1659e6a35b6c230ef6dfaac107dddea9b4fe6dc2cead80b46dd816c14a43a"
+    },
+    {
+      "id": 652380911,
+      "name": "Miniutility-paper-spigot-1.21.8-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:3914c096f7f4e08d77ca500be10651c3b09c05c23f06ce4b0334f72eb64e4190"
+    },
+    {
+      "id": 652379338,
+      "name": "Miniutility-paper-spigot-1.21.9-26.3.1.jar",
+      "size": 13022501,
+      "digest": "sha256:e466b0a9511ee30e8b82181754a86ba5d99118faf6d1bc1857bdd08e88b16cbf"
+    },
+    {
+      "id": 652378224,
+      "name": "Miniutility-paper-spigot-26.1-26.3.1.jar",
+      "size": 13022492,
+      "digest": "sha256:36a8ff32718b04372f4cd48c76051aa2e8dda68c9f37c87fd6a747521c0323b5"
+    },
+    {
+      "id": 652379930,
+      "name": "Miniutility-paper-spigot-26.1.1-26.3.1.jar",
+      "size": 13022493,
+      "digest": "sha256:efd68dff916194ce68de13fe7aa310ea15b23209c5e8a240f819358f3ee13272"
+    },
+    {
+      "id": 652379473,
+      "name": "Miniutility-paper-spigot-26.1.2-26.3.1.jar",
+      "size": 13022494,
+      "digest": "sha256:13e58c60c63b6b53d5172d1c3d25b494f835bdd63f453a9f2c0323aa93052a24"
+    },
+    {
+      "id": 652380764,
+      "name": "Miniutility-paper-spigot-26.2-26.3.1.jar",
+      "size": 13022493,
+      "digest": "sha256:76b90aaacb3024fa7568ea765794dc853c3ecc7a7a948b377e3960d3e10e90f8"
+    },
+    {
+      "id": 652379893,
+      "name": "Miniutility-paper-spigot-26.3-26.3.1.jar",
+      "size": 13022492,
+      "digest": "sha256:740a06ed4beebea6dc489666f1d1195d5c1be13b6e563bbfa2af8a00816f8eef"
+    },
+    {
+      "id": 652395979,
+      "name": "SHA256SUMS.txt",
+      "size": 7000,
+      "digest": "sha256:fd0a0a1313b7fde2be750579a45a2a14198c6f64e257e79f50506cd29e93aa81"
+    }
+  ],
+  "original_body": "# Miniutility 26.3.1\n\nMinecraft **1.20.1〜26.3** 向けの Paper / Spigot・Forge・Fabric 版です。**お使いのプラットフォームとMinecraftの版が一致するJARを1つ選んでください。**\n\n| 種類 | ファイル名 | 導入先 | 対象数 |\n| --- | --- | --- | --- |\n| Paper / Spigot | `Miniutility-paper-spigot-<Minecraft版>-26.3.1.jar` | `plugins` | 23版 |\n| Forge | `Miniutility-forge-<Minecraft版>-26.3.1.jar` | `mods` | 21版 |\n| Fabric | `Miniutility-fabric-<Minecraft版>-26.3.1.jar` | `mods`（Fabric APIも必要） | 23版 |\n\nForge版は1.20.5・1.21.2を含みません。Paper / SpigotとFabricはこの2版にも対応します。\n\n## 機能\n\n- メニューから死亡地点へワープ、経験値・ゲームモード変更、クリーパーのブロック破壊防止\n- エンダーチェスト、削除確認付きゴミ箱、ニックネーム、どこでも作業台\n- `/menu`・`/prefixtoggle [on|off]`・`/load`\n- LuckPermsのプレフィックス表示（LuckPermsは任意）\n\n## 導入・更新\n\nサーバーを停止して古いMiniutility JARと入れ替え、再起動してください。JavaはMinecraft 1.20.1〜1.20.4が17、1.20.5〜1.21.11が21、26.1以降が25です。\n\nPaper / Spigot版は既存の設定とSQLiteデータを継続利用します。Forge / Fabric版はワールド内の `miniutility/profiles.properties` に保存します。プラグイン版からMOD版へのデータ自動移行はありません。Forge / Fabric版はサーバー側のみへの導入で利用できます。\n\n## 検証とソース\n\n全67版のビルド・テストが成功し、配布JARの内部メタデータ・Javaバージョン・SHA-256を確認済みです。\n\n- [Paper / Spigot CI](https://github.com/hotamachisubaru-git/Miniutility/actions/runs/39094228908): 23版、各110件のテスト\n- [Forge CI](https://github.com/hotamachisubaru-git/Miniutility/actions/runs/39094229052): 21版、各7件の共有ロジックテスト\n- [Fabric CI](https://github.com/hotamachisubaru-git/Miniutility/actions/runs/39094228945): 23版、各7件の共有ロジックテスト\n\nMinecraftクライアントでの全GUI操作は未検証です。`SHA256SUMS.txt` で各JARのハッシュ値を確認できます。\n\nソース: [Paper / Spigot](https://github.com/hotamachisubaru-git/Miniutility/tree/26.3.1) / [Forge](https://github.com/hotamachisubaru-git/Miniutility/tree/26.3.1-forge) / [Fabric](https://github.com/hotamachisubaru-git/Miniutility/tree/26.3.1-fabric)。GitHub標準の `Source code` ZIP/TARはPaper / Spigot版です。\n"
+}
