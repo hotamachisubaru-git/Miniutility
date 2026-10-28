@@ -5,6 +5,9 @@ on:
     branches: [master]
     paths:
       - '.github/release-packaging/26.3.1.json'
+      - '.github/workflows/repackage-release.yml'
+      - 'scripts/package_release_archives.py'
+      - 'scripts/publish_release_archives.py'
   workflow_dispatch:
 
 permissions:

@@ -46,6 +46,14 @@ def download(url, path):
                     '--output', str(path), url], check=True)
 
 
+def download_asset(repository, asset, path):
+    # An asset ID identifies the uploaded object even when a filename is reused.
+    # The public filename URL may still serve the previous object's cached bytes.
+    with path.open('wb') as output:
+        subprocess.run(['gh', 'api', f"repos/{repository}/releases/assets/{asset['id']}",
+                        '--header', 'Accept: application/octet-stream'], stdout=output, check=True)
+
+
 def release_snapshot(plan):
     release = api(plan['repository'], f"releases/{plan['release_id']}")
     require(release['tag_name'] == plan['tag'] == '26.3.1', 'Unexpected release tag')
@@ -120,7 +128,7 @@ def verify_uploaded(plan, output, names, verification):
         local = output / name
         target = verification / name
         require(live[name]['size'] == local.stat().st_size, 'Uploaded size differs: ' + name)
-        download(live[name]['browser_download_url'], target)
+        download_asset(plan['repository'], live[name], target)
         require(digest(local) == digest(target), 'Uploaded checksum differs: ' + name)
 
 
@@ -142,12 +150,15 @@ def publish(plan, output):
         check_legacy_assets(plan, release)
         checksum = next((a for a in release['assets'] if a['name'] == 'SHA256SUMS.txt'), None)
         local_sum = output / 'SHA256SUMS.txt'
+        checksum_matches = False
         if checksum:
-            download(checksum['browser_download_url'], verification / 'SHA256SUMS.txt')
+            download_asset(plan['repository'], checksum, verification / 'SHA256SUMS.txt')
             original_sum = next(a for a in plan['assets'] if a['name'] == 'SHA256SUMS.txt')
             require(digest(verification / 'SHA256SUMS.txt') in
                     (original_sum['digest'], digest(local_sum)), 'Checksum file changed outside migration')
-        gh('release', 'upload', plan['tag'], local_sum, '--repo', plan['repository'], '--clobber')
+            checksum_matches = digest(verification / 'SHA256SUMS.txt') == digest(local_sum)
+        if not checksum_matches:
+            gh('release', 'upload', plan['tag'], local_sum, '--repo', plan['repository'], '--clobber')
         verify_uploaded(plan, output, ['SHA256SUMS.txt'], verification)
         gh('release', 'edit', plan['tag'], '--repo', plan['repository'], '--notes-file', NOTES_FILE)
 

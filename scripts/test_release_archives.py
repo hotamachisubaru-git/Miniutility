@@ -2,6 +2,7 @@
 import copy
 import json
 import pathlib
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -66,6 +67,28 @@ class PublicationSafetyTests(unittest.TestCase):
              patch.object(publisher, 'gh', side_effect=command):
             publisher.publish(self.plan, pathlib.Path('/unused'))
         self.assertEqual(events, ['verified 3', 'verified 1', 'notes', 'delete'])
+
+    def test_verification_downloads_the_exact_asset_id(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = pathlib.Path(directory) / 'output'
+            verification = pathlib.Path(directory) / 'verification'
+            output.mkdir()
+            verification.mkdir()
+            path = output / 'SHA256SUMS.txt'
+            path.write_bytes(b'new checksum content\n')
+            asset = {'id': 123, 'name': path.name, 'size': path.stat().st_size,
+                     'browser_download_url': 'https://example.invalid/cached-old-file'}
+
+            def exact_download(repository, actual_asset, destination):
+                self.assertEqual(actual_asset['id'], 123)
+                destination.write_bytes(path.read_bytes())
+
+            with patch.object(publisher, 'release_snapshot', return_value={'assets': [asset]}), \
+                 patch.object(publisher, 'download_asset', side_effect=exact_download) as download, \
+                 patch.object(publisher, 'download') as cached_download:
+                publisher.verify_uploaded(self.plan, output, [path.name], verification)
+                download.assert_called_once()
+                cached_download.assert_not_called()
 
 
 if __name__ == '__main__':
